@@ -11,7 +11,7 @@ This study and data collection are performed under ethical approval no. erb2020m
 
 In this instruction we will get you and your browser ready for the tasks. Please first follow the steps on how to install the plugin.
 </p>
-<div style="position: fixed; top:35%; left:9%;width: 12%;height: auto;border: 1px dashed #000; padding:5px;"><p>If you experience any technical difficulties or have other questions, please contact Sam (<a href="https://wa.me/0031639474205">whatsapp link</a>) or Ardela (<a href="https://wa.me/0031638416306">whatsapp link</a>) anytime.</p></div>
+
 <h1>Installation</h1>
 <h2>Step 1: Install the Google Chrome browser</h2>
 <p>Please download and install the Google Chrome browser from <a href="https://www.google.com/chrome/">here</a> if you do not have it already.</p>
