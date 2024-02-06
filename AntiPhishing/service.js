@@ -1,3 +1,5 @@
+const API_URL = "http://localhost:5000";
+
 chrome.runtime.onInstalled.addListener(() => {
     console.log('Installed');
 
@@ -48,7 +50,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     chrome.storage.local.get(['uuid'], function (result) {
         process(sender.tab.id, sender.tab.url, sender.tab.title, "", result.uuid);
     });
-
 });
 
 // Clear local storage on fresh chrome startup
@@ -142,10 +143,8 @@ function process(tabid, urlkey, title, screenshot, uuid) {
                 chrome.tabs.sendMessage(tabid, {
                     status: result.urlCacheIds[i].status,
                     url: urlkey
-                }, function (response) {
-                    // No response
                 });
-                if ((result.urlCacheIds[i].status != 'queued') && (result.urlCacheIds.status != 'processing')) {
+                if ((result.urlCacheIds[i].status != 'queued') && (result.urlCacheIds[i].status != 'processing')) {
                     return;
                 }
             }
@@ -174,7 +173,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
             'uuid': uuid
         });
         console.log(jsonData)
-        fetch("http://tilbury2.fortiddns.com:5000/api/v1/url", {
+        fetch(API_URL + "/api/v1/url", {
                 method: "POST",
                 body: jsonData,
                 headers: {
@@ -230,9 +229,6 @@ function process(tabid, urlkey, title, screenshot, uuid) {
                     chrome.tabs.sendMessage(tabid, {
                         status: jsonResp.status,
                         url: jsonResp.url
-                    }, function (response) {
-                        // No response
-
                     });
                 }
             })
@@ -278,7 +274,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
         'uuid': uuid
     });
     console.log(jsonData)
-    fetch("http://tilbury2.fortiddns.com:5000/api/v1/url", {
+    fetch(API_URL + "/api/v1/url", {
             method: "POST",
             body: jsonData,
             headers: {
@@ -337,8 +333,6 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
                 chrome.tabs.sendMessage(tabid, {
                     status: jsonResp.status,
                     url: urlkey
-                }, function (response) {
-                    // No response
                 });
             }
         })

@@ -10,9 +10,6 @@ window.addEventListener('load', function () {
     if (!hostname.includes("google.") && !hostname.includes("chrome://") && !hostname.includes("bit.ly") && hostname.includes(".") && inputs.length > 0) {
         chrome.runtime.sendMessage({
             url: chrome.runtime.url
-        }, function (response) {
-            // No response
-            // Will be through separate message
         });
     }
 
