@@ -239,7 +239,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
             });
         /*
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://tilbury2.fortiddns.com:5000/api/v1/url", true);
+        xhr.open("POST", "http://localhost:5000/api/v1/url", true);
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.setRequestHeader("Content-length", jsonData.length);
         xhr.setRequestHeader("Connection", "close");

@@ -90,7 +90,7 @@ chrome.tabs.query({
             'URL': urlkey,
             'uuid': uuid
         });
-        fetch("http://tilbury2.fortiddns.com:5000/api/v1/url/state", {
+        fetch("http://localhost:5000/api/v1/url/state", {
                 method: "POST",
                 body: jsonData,
                 headers: {
