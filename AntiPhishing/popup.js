@@ -14,6 +14,12 @@ chrome.tabs.query({
     let spinner2 = document.getElementById('spinner2');
     let spinner3 = document.getElementById('spinner3');
     let phishinglist = document.getElementById('phishinglist');
+
+    // Cut part of the URL if it's too long
+    if (url.length > 30) {
+        url = url.slice(0, 30) + "...";
+    }
+
     currUrl.textContent = url;
 
     updatecontent();
