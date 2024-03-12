@@ -21,8 +21,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 // Clear local storage on fresh chrome startup
 chrome.runtime.onStartup.addListener(() => {
-  // Clear on startup?
-  //chrome.storage.local.clear(); // doesn't work well as it removes also the UUID
   clearUrlStorage();
   updateBadge();
 });
@@ -146,7 +144,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
             jsonResp = JSON.parse(jsonResp);
             storeResponse(urlkey, jsonResp.result);
             updateBadge();
-            //console.log(jsonResp.status);
+            console.log(jsonResp.result);
 
             if (jsonResp.result == "PROCESSING") {
               checkLoop(tabid, urlkey, title, screenshot, uuid, 0);
@@ -209,78 +207,89 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
     pagetitle: title,
     uuid: uuid,
   });
+
   console.log(jsonData);
-  fetch(host + "/api/v2/check", {
-    method: "POST",
-    body: jsonData,
-    headers: {
-      "Content-Type": "application/json",
-      Connection: "close",
-      "Content-Length": jsonData.length,
-    },
-  })
-    .then((res) => {
-      return res.json();
+
+  chrome.storage.local.get(["host"], function (result) {
+
+    if (result.host == "" || result.host == null) {
+      console.error("The IP of the host is not set.");
+    }
+
+    let host = result.host;
+
+    fetch(host + "/api/v2/check", {
+      method: "POST",
+      body: jsonData,
+      headers: {
+        "Content-Type": "application/json",
+        Connection: "close",
+        "Content-Length": jsonData.length,
+      },
     })
-    .then((data) => {
-      jsonResp = JSON.stringify(data[0]);
-      jsonResp = JSON.parse(jsonResp);
-      storeResponse(urlkey, jsonResp.result);
-      updateBadge();
-      if (i > 50) {
-        //deleteResponse(urlkey)
-        // stop checking.. takes too long (server down?)
-      } else if (jsonResp.result == "PROCESSING") {
-        setTimeout(
-          checkLoop(tabid, urlkey, title, screenshot, uuid, ++i),
-          2000
-        );
-      } else {
-        console.log("late response sent to tab");
-        // change icon
-        if (jsonResp.result == "PHISHING") {
-          chrome.action.setIcon({
-            path: {
-              16: "/images/phishing_16.png",
-              32: "/images/phishing_32.png",
-              64: "/images/phishing_64.png",
-              128: "/images/phishing_128.png",
-            },
-            tabId: tabid,
-          });
-        } else if (jsonResp.result == "LEGITIMATE") {
-          console.log("Icon set to not_phishing");
-          chrome.action.setIcon({
-            path: {
-              16: "/images/not_phishing_16.png",
-              32: "/images/not_phishing_32.png",
-              64: "/images/not_phishing_64.png",
-              128: "/images/not_phishing_128.png",
-            },
-            tabId: tabid,
-          });
-        } else if (jsonResp.result == "INCONCLUSIVE") {
-          chrome.action.setIcon({
-            path: {
-              16: "/images/questionmark_16.png",
-              32: "/images/questionmark_32.png",
-              64: "/images/questionmark_64.png",
-              128: "/images/questionmark_128.png",
-            },
-            tabId: tabid,
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        jsonResp = JSON.stringify(data[0]);
+        jsonResp = JSON.parse(jsonResp);
+        storeResponse(urlkey, jsonResp.result);
+        updateBadge();
+        if (i > 50) {
+          //deleteResponse(urlkey)
+          // stop checking.. takes too long (server down?)
+        } else if (jsonResp.result == "PROCESSING") {
+          setTimeout(
+            checkLoop(tabid, urlkey, title, screenshot, uuid, ++i),
+            2000
+          );
+        } else {
+          console.log("late response sent to tab");
+          // change icon
+          if (jsonResp.result == "PHISHING") {
+            chrome.action.setIcon({
+              path: {
+                16: "/images/phishing_16.png",
+                32: "/images/phishing_32.png",
+                64: "/images/phishing_64.png",
+                128: "/images/phishing_128.png",
+              },
+              tabId: tabid,
+            });
+          } else if (jsonResp.result == "LEGITIMATE") {
+            console.log("Icon set to not_phishing");
+            chrome.action.setIcon({
+              path: {
+                16: "/images/not_phishing_16.png",
+                32: "/images/not_phishing_32.png",
+                64: "/images/not_phishing_64.png",
+                128: "/images/not_phishing_128.png",
+              },
+              tabId: tabid,
+            });
+          } else if (jsonResp.result == "INCONCLUSIVE") {
+            chrome.action.setIcon({
+              path: {
+                16: "/images/questionmark_16.png",
+                32: "/images/questionmark_32.png",
+                64: "/images/questionmark_64.png",
+                128: "/images/questionmark_128.png",
+              },
+              tabId: tabid,
+            });
+          }
+          chrome.tabs.sendMessage(tabid, {
+            status: jsonResp.result,
+            url: urlkey,
           });
         }
-        chrome.tabs.sendMessage(tabid, {
-          status: jsonResp.result,
-          url: urlkey,
-        });
-      }
-    })
-    .catch((err) => {
-      // An error occured. This can be the timeout, or some other error.
-      console.log(err);
-      return "error";
-    });
+      })
+      .catch((err) => {
+        // An error occured. This can be the timeout, or some other error.
+        console.log(err);
+        return "error";
+      });
+  });
 }
 
 function storeResponse(urlkey, response) {
