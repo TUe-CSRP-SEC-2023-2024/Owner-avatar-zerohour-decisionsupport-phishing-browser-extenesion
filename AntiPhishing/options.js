@@ -1,3 +1,5 @@
+import {setup, clearAllStorage} from './common.js';
+
 chrome.tabs.query({
     active: true,
     lastFocusedWindow: true
@@ -5,7 +7,8 @@ chrome.tabs.query({
     let deleteDataButton = document.getElementById('delete-data-button');
 
     deleteDataButton.addEventListener("click", () => {
-        chrome.storage.local.clear();
-        console.log("Deleted all local storage.")
+        clearAllStorage();
+        setup();
+        console.log("Data deleted successfully!");
     });
 });
