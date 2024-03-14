@@ -1,4 +1,4 @@
-import { setup } from "./common.js";
+import { setup, storeResponse, deleteResponse } from "./storage.js";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Installed");
@@ -291,74 +291,6 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
       });
   });
 }
-
-function storeResponse(urlkey, response) {
-  // Store the url and response in cache
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      var found = false;
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (result.urlCacheIds[i].urlId == urlkey) {
-          result.urlCacheIds[i].status = response;
-          result.urlCacheIds[i].ack = false;
-
-          chrome.storage.local.set(
-            {
-              urlCacheIds: result.urlCacheIds,
-            },
-            function (result) {}
-          );
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        var urlCacheIds = result.urlCacheIds;
-        urlCacheIds.push({
-          urlId: urlkey,
-          status: response,
-          ack: false,
-        });
-
-        chrome.storage.local.set(
-          {
-            urlCacheIds: urlCacheIds,
-          },
-          function (result) {}
-        );
-      }
-    }
-  );
-}
-
-// NOT USED
-// function deleteResponse(urlkey) {
-//   chrome.storage.local.get(
-//     {
-//       urlCacheIds: [],
-//     },
-//     function (result) {
-//       for (let i = 0; i < result.urlCacheIds.length; i++) {
-//         if (result.urlCacheIds[i].urlId == urlkey) {
-//           // delete entry
-//           result.urlCacheIds.splice(i, 1);
-
-//           // put array back
-//           chrome.storage.local.set(
-//             {
-//               urlCacheIds: result.urlCacheIds,
-//             },
-//             function (result) {}
-//           );
-//           break;
-//         }
-//       }
-//     }
-//   );
-// }
 
 function updateBadge() {
   chrome.storage.local.get(

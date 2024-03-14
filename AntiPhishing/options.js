@@ -1,4 +1,4 @@
-import {setup, clearAllStorage} from './common.js';
+import {setup, clearAllStorage} from './storage.js';
 
 chrome.tabs.query({
     active: true,
