@@ -36,8 +36,8 @@ function process(tabid, urlkey, title, screenshot, uuid) {
         if (result.urlCacheIds[i].urlId == urlkey) {
           // check status of tab for the icon change
           if (
-            result.urlCacheIds[i].status == "queued" ||
-            result.urlCacheIds.status == "PROCESSING"
+            result.urlCacheIds[i].result == "QUEUED" ||
+            result.urlCacheIds.result == "PROCESSING"
           ) {
             chrome.action.setIcon({
               path: {
@@ -48,7 +48,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
               },
               tabId: tabid,
             });
-          } else if (result.urlCacheIds[i].status == "INCONCLUSIVE") {
+          } else if (result.urlCacheIds[i].result == "INCONCLUSIVE") {
             chrome.action.setIcon({
               path: {
                 16: "/images/questionmark_16.png",
@@ -58,7 +58,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
               },
               tabId: tabid,
             });
-          } else if (result.urlCacheIds[i].status == "PHISHING") {
+          } else if (result.urlCacheIds[i].result == "PHISHING") {
             chrome.action.setIcon({
               path: {
                 16: "/images/phishing_16.png",
@@ -68,7 +68,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
               },
               tabId: tabid,
             });
-          } else if (result.urlCacheIds[i].status == "LEGITIMATE") {
+          } else if (result.urlCacheIds[i].result == "LEGITIMATE") {
             console.log("Icon set to not_phishing");
             chrome.action.setIcon({
               path: {
@@ -82,12 +82,12 @@ function process(tabid, urlkey, title, screenshot, uuid) {
           }
 
           chrome.tabs.sendMessage(tabid, {
-            status: result.urlCacheIds[i].status,
+            result: result.urlCacheIds[i].result,
             url: urlkey,
           });
           if (
-            result.urlCacheIds[i].status != "queued" &&
-            result.urlCacheIds[i].status != "PROCESSING"
+            result.urlCacheIds[i].result != "QUEUED" &&
+            result.urlCacheIds[i].result != "PROCESSING"
           ) {
             return;
           }
@@ -108,7 +108,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
       //console.log("New URL is " + urlkey + " and title is  " + title + " and screenshot data " + screenshot);
 
       // add url to cache so we do not process twice before result is known.
-      storeResponse(urlkey, "queued");
+      storeResponse(urlkey, "QUEUED");
 
       var jsonData = JSON.stringify({
         data: {
@@ -182,7 +182,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
                 });
               }
               chrome.tabs.sendMessage(tabid, {
-                status: jsonResp.status,
+                result: jsonResp.result,
                 url: jsonResp.url,
               });
             }
@@ -198,7 +198,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
 }
 
 function checkLoop(tabid, urlkey, title, screenshot, uuid, i) {
-  res = checkAgain(tabid, urlkey, title, screenshot, uuid, i);
+  checkAgain(tabid, urlkey, title, screenshot, uuid, i);
 }
 
 function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
@@ -211,7 +211,6 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
   console.log(jsonData);
 
   chrome.storage.local.get(["host"], function (result) {
-
     if (result.host == "" || result.host == null) {
       console.error("The IP of the host is not set.");
     }
@@ -279,7 +278,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
             });
           }
           chrome.tabs.sendMessage(tabid, {
-            status: jsonResp.result,
+            result: jsonResp.result,
             url: urlkey,
           });
         }
@@ -301,7 +300,7 @@ function updateBadge() {
       var count = 0;
       for (let i = 0; i < result.urlCacheIds.length; i++) {
         if (
-          result.urlCacheIds[i].status == "PHISHING" &&
+          result.urlCacheIds[i].result == "PHISHING" &&
           result.urlCacheIds[i].ack != true
         ) {
           count++;

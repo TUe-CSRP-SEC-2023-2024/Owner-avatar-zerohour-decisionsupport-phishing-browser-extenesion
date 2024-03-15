@@ -38,7 +38,7 @@ function storeResponse(urlkey, response) {
       var found = false;
       for (let i = 0; i < result.urlCacheIds.length; i++) {
         if (result.urlCacheIds[i].urlId == urlkey) {
-          result.urlCacheIds[i].status = response;
+          result.urlCacheIds[i].result = response;
           result.urlCacheIds[i].ack = false;
 
           chrome.storage.local.set(
@@ -55,7 +55,7 @@ function storeResponse(urlkey, response) {
         var urlCacheIds = result.urlCacheIds;
         urlCacheIds.push({
           urlId: urlkey,
-          status: response,
+          result: response,
           ack: false,
         });
 

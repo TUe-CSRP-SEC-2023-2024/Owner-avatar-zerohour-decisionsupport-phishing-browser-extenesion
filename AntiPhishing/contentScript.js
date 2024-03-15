@@ -1,6 +1,6 @@
 const { hostname } = new URL(location.href);
 
-var checkstatus = "processing";
+var checkstatus = "PROCESSING";
 
 // Wait for the page to have loaded before trying to count the password fields
 window.addEventListener("load", function () {
@@ -9,7 +9,7 @@ window.addEventListener("load", function () {
   if (
     !hostname.includes("google.") &&
     !hostname.includes("chrome://") &&
-    !hostname.includes("bit.ly") &&
+    !hostname.includes("bit.ly") && // why?
     hostname.includes(".") &&
     inputs.length > 0
   ) {
@@ -21,7 +21,7 @@ window.addEventListener("load", function () {
   // add listeners to password fields
   for (var i = 0; i < inputs.length; i++) {
     inputs[i].addEventListener("focusin", () => {
-      if (checkstatus == "processing") {
+      if (checkstatus == "PROCESSING") {
         var tooltipWrap = document.createElement("div"); //creates div
         tooltipWrap.className = "tooltipphish"; //adds class
 
@@ -54,8 +54,8 @@ window.addEventListener("load", function () {
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.status == "phishing") {
-    checkstatus = "phishing";
+  if (request.result == "PHISHING") {
+    checkstatus = "PHISHING";
     // Check if still on same domain, if yes then display warning
     var hostname1 = new URL(location.href).hostname;
     var hostname2 = new URL(request.url).hostname;
@@ -77,8 +77,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           });
       }
     }
-  } else if (request.status == "not phishing") {
-    checkstatus = "nophishing";
+  } else if (request.result == "LEGITIMATE") {
+    checkstatus = "LEGITIMATE";
     document.querySelector(".tooltipphish").remove();
   }
 });
@@ -92,7 +92,7 @@ function whitelistPhish() {
       var i;
       for (i = 0; i < result.urlCacheIds.length; i++) {
         if (result.urlCacheIds[i].urlId == location.href) {
-          result.urlCacheIds[i].status = "not phishing";
+          result.urlCacheIds[i].result = "LEGITIMATE";
 
           chrome.storage.local.set(
             {

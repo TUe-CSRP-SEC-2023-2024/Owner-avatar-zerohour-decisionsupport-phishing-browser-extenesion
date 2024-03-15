@@ -9,20 +9,21 @@ chrome.tabs.query(
     let rating = document.getElementById("rating");
     let progressdiv = document.getElementById("progressdiv");
     let updatestatebutton = document.getElementById("get-state-button");
-    let step1 = document.getElementById("textsearch");
-    let step2 = document.getElementById("imagesearch");
-    let step3 = document.getElementById("imagecompare");
-    let spinner1 = document.getElementById("spinner1");
-    let spinner2 = document.getElementById("spinner2");
-    let spinner3 = document.getElementById("spinner3");
+    let spinner = document.getElementById("spinner");
+    // let step1 = document.getElementById("textsearch");
+    // let step2 = document.getElementById("imagesearch");
+    // let step3 = document.getElementById("imagecompare");
+    // let spinner1 = document.getElementById("spinner1");
+    // let spinner2 = document.getElementById("spinner2");
+    // let spinner3 = document.getElementById("spinner3");
     let phishinglist = document.getElementById("phishinglist");
 
     // Cut part of the URL if it's too long
     if (url.length > 30) {
-      url = url.slice(0, 30) + "...";
+      displayUrl = url.slice(0, 30) + "...";
     }
 
-    currUrl.textContent = url;
+    currUrl.textContent = displayUrl;
 
     updateContent();
 
@@ -42,15 +43,15 @@ chrome.tabs.query(
           var found = false;
           for (i = 0; i < result.urlCacheIds.length; i++) {
             if (result.urlCacheIds[i].urlId == url) {
-              if (result.urlCacheIds[i].status == "legitimate") {
+              if (result.urlCacheIds[i].result == "LEGITIMATE") {
                 rating.textContent = "No, you're safe!";
                 found = true;
-              } else if (result.urlCacheIds[i].status == "phishing") {
+              } else if (result.urlCacheIds[i].result == "PHISHING") {
                 rating.textContent = "Yes, be careful!";
                 found = true;
               } else if (
-                result.urlCacheIds[i].status == "queued" ||
-                result.urlCacheIds[i].status == "processing"
+                result.urlCacheIds[i].result == "QUEUED" ||
+                result.urlCacheIds[i].result == "PROCESSING"
               ) {
                 rating.textContent = "Waiting for result...";
                 progressdiv.style.display = "block";
@@ -116,10 +117,12 @@ chrome.tabs.query(
 
     function getUpdate(uuid, urlkey) {
       console.log("UUID: " + uuid + " URL: " + urlkey);
+      
       var jsonData = JSON.stringify({
         URL: urlkey,
         uuid: uuid,
       });
+
       fetch("http://localhost:5000/api/v2/state", {
         method: "POST",
         body: jsonData,
@@ -136,28 +139,28 @@ chrome.tabs.query(
           jsonResp = JSON.stringify(data[0]);
           jsonResp = JSON.parse(jsonResp);
 
-          if (jsonResp.status == "processing") {
-            if (jsonResp.state == "textsearch") {
-              step1.style.fontWeight = "bold";
-              spinner2.style.display = "none";
-              spinner3.style.display = "none";
-            } else if (jsonResp.state == "imagesearch") {
-              step1.style.color = "#4CAF50";
-              step1.style.fontWeight = "bold";
-              step2.style.fontWeight = "bold";
-              spinner2.style.display = "inline-block";
-              spinner3.style.display = "none";
-              spinner1.className = "checkmark";
-            } else {
-              step1.style.color = "#4CAF50";
-              step2.style.color = "#4CAF50";
-              step1.style.fontWeight = "bold";
-              step2.style.fontWeight = "bold";
-              step3.style.fontWeight = "bold";
-              spinner1.className = "checkmark";
-              spinner2.className = "checkmark";
-              spinner3.style.display = "inline-block";
-            }
+          if (jsonResp.result == "PROCESSING") {
+            // if (jsonResp.state == "textsearch") {
+            //   step1.style.fontWeight = "bold";
+            //   spinner2.style.display = "none";
+            //   spinner3.style.display = "none";
+            // } else if (jsonResp.state == "imagesearch") {
+            //   step1.style.color = "#4CAF50";
+            //   step1.style.fontWeight = "bold";
+            //   step2.style.fontWeight = "bold";
+            //   spinner2.style.display = "inline-block";
+            //   spinner3.style.display = "none";
+            //   spinner1.className = "checkmark";
+            // } else {
+            //   step1.style.color = "#4CAF50";
+            //   step2.style.color = "#4CAF50";
+            //   step1.style.fontWeight = "bold";
+            //   step2.style.fontWeight = "bold";
+            //   step3.style.fontWeight = "bold";
+            //   spinner1.className = "checkmark";
+            //   spinner2.className = "checkmark";
+            //   spinner3.style.display = "inline-block";
+            // }
           } else {
             progressdiv.style.display = "none";
             updatestatebutton.style.display = "none";
@@ -210,7 +213,7 @@ chrome.tabs.query(
           var i;
           for (i = 0; i < result.urlCacheIds.length; i++) {
             if (result.urlCacheIds[i].urlId == urlkey1) {
-              result.urlCacheIds[i].status = "legitimate";
+              result.urlCacheIds[i].result = "LEGITIMATE";
 
               chrome.storage.local.set(
                 {
@@ -237,7 +240,7 @@ chrome.tabs.query(
           var count = 0;
           for (i = 0; i < result.urlCacheIds.length; i++) {
             if (
-              result.urlCacheIds[i].status == "phishing" &&
+              result.urlCacheIds[i].result == "PHISHING" &&
               result.urlCacheIds[i].ack != true
             ) {
               count++;
