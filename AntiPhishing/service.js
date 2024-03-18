@@ -194,10 +194,6 @@ function process(tabid, urlkey, title, screenshot, uuid) {
   );
 }
 
-function checkLoop(tabid, urlkey, title, screenshot, uuid, i) {
-  checkAgain(tabid, urlkey, title, screenshot, uuid, i);
-}
-
 function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
   var jsonData = JSON.stringify({
     URL: urlkey,
@@ -227,8 +223,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
         return res.json();
       })
       .then((data) => {
-        jsonResp = JSON.stringify(data[0]);
-        jsonResp = JSON.parse(jsonResp);
+        let jsonResp = JSON.parse(JSON.stringify(data));
         storeResponse(urlkey, jsonResp.result);
         updateBadge();
         if (i > 50) {
@@ -236,7 +231,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
           // stop checking.. takes too long (server down?)
         } else if (jsonResp.result == "PROCESSING") {
           setTimeout(
-            checkLoop(tabid, urlkey, title, screenshot, uuid, ++i),
+            () => checkAgain(tabid, urlkey, title, screenshot, uuid, ++i),
             2000
           );
         } else {

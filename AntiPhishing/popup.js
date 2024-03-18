@@ -64,8 +64,8 @@ chrome.tabs.query(
                 progressdiv.style.display = "block";
                 updatestatebutton.style.display = "inline-block";
                 found = true;
-              } else if (result.urlCacheIds[i].status == "INCONCLUSIVE") {
-                rating.textContent = "We're not sure about this one! Be alert.";
+              } else if (result.urlCacheIds[i].result == "INCONCLUSIVE") {
+                rating.textContent = "We're not sure about this one! Be alert!";
                 found = true;
               }
             }
