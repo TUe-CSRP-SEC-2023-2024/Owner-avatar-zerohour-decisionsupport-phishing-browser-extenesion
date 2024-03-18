@@ -111,11 +111,9 @@ function process(tabid, urlkey, title, screenshot, uuid) {
       storeResponse(urlkey, "QUEUED");
 
       var jsonData = JSON.stringify({
-        data: {
-          URL: urlkey,
-          pagetitle: title,
-          uuid: uuid,
-        },
+        URL: urlkey,
+        pagetitle: title,
+        uuid: uuid,
       });
 
       console.log(jsonData);
@@ -137,11 +135,10 @@ function process(tabid, urlkey, title, screenshot, uuid) {
           },
         })
           .then((res) => {
-            res.json();
+            return res.json();
           })
           .then((data) => {
-            jsonResp = JSON.stringify(data[0]);
-            jsonResp = JSON.parse(jsonResp);
+            let jsonResp = JSON.parse(JSON.stringify(data));
             storeResponse(urlkey, jsonResp.result);
             updateBadge();
             console.log(jsonResp.result);

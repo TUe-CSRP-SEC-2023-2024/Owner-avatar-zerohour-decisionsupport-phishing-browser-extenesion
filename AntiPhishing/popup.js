@@ -10,6 +10,7 @@ chrome.tabs.query(
     let progressdiv = document.getElementById("progressdiv");
     let updatestatebutton = document.getElementById("get-state-button");
     let spinner = document.getElementById("spinner");
+    let settingsBtn = document.getElementById("settings-button");
     // let step1 = document.getElementById("textsearch");
     // let step2 = document.getElementById("imagesearch");
     // let step3 = document.getElementById("imagecompare");
@@ -17,6 +18,12 @@ chrome.tabs.query(
     // let spinner2 = document.getElementById("spinner2");
     // let spinner3 = document.getElementById("spinner3");
     let phishinglist = document.getElementById("phishinglist");
+
+    settingsBtn.addEventListener("click", () => {
+      chrome.runtime.openOptionsPage();
+    });
+
+    let displayUrl = url;
 
     // Cut part of the URL if it's too long
     if (url.length > 30) {
@@ -57,7 +64,7 @@ chrome.tabs.query(
                 progressdiv.style.display = "block";
                 updatestatebutton.style.display = "inline-block";
                 found = true;
-              } else if (result.urlCacheIds[i].status == "inconclusive") {
+              } else if (result.urlCacheIds[i].status == "INCONCLUSIVE") {
                 rating.textContent = "We're not sure about this one! Be alert.";
                 found = true;
               }
@@ -117,7 +124,7 @@ chrome.tabs.query(
 
     function getUpdate(uuid, urlkey) {
       console.log("UUID: " + uuid + " URL: " + urlkey);
-      
+
       var jsonData = JSON.stringify({
         URL: urlkey,
         uuid: uuid,
@@ -136,7 +143,7 @@ chrome.tabs.query(
           return res.json();
         })
         .then((data) => {
-          jsonResp = JSON.stringify(data[0]);
+          let jsonResp = JSON.stringify(data[0]);
           jsonResp = JSON.parse(jsonResp);
 
           if (jsonResp.result == "PROCESSING") {
