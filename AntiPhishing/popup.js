@@ -125,56 +125,64 @@ chrome.tabs.query(
     function getUpdate(uuid, urlkey) {
       console.log("UUID: " + uuid + " URL: " + urlkey);
 
-      var jsonData = JSON.stringify({
-        URL: urlkey,
-        uuid: uuid,
-      });
-
-      fetch("http://localhost:5000/api/v2/state", {
-        method: "POST",
-        body: jsonData,
-        headers: {
-          "Content-Type": "application/json",
-          Connection: "close",
-          "Content-Length": jsonData.length,
-        },
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          let jsonResp = JSON.stringify(data[0]);
-          jsonResp = JSON.parse(jsonResp);
-
-          if (jsonResp.result == "PROCESSING") {
-            // if (jsonResp.state == "textsearch") {
-            //   step1.style.fontWeight = "bold";
-            //   spinner2.style.display = "none";
-            //   spinner3.style.display = "none";
-            // } else if (jsonResp.state == "imagesearch") {
-            //   step1.style.color = "#4CAF50";
-            //   step1.style.fontWeight = "bold";
-            //   step2.style.fontWeight = "bold";
-            //   spinner2.style.display = "inline-block";
-            //   spinner3.style.display = "none";
-            //   spinner1.className = "checkmark";
-            // } else {
-            //   step1.style.color = "#4CAF50";
-            //   step2.style.color = "#4CAF50";
-            //   step1.style.fontWeight = "bold";
-            //   step2.style.fontWeight = "bold";
-            //   step3.style.fontWeight = "bold";
-            //   spinner1.className = "checkmark";
-            //   spinner2.className = "checkmark";
-            //   spinner3.style.display = "inline-block";
-            // }
-          } else {
-            progressdiv.style.display = "none";
-            updatestatebutton.style.display = "none";
-            updateContent();
-            clearInterval(intervalId);
-            // phishinglist.style.height = "255px";
+      chrome.storage.local
+        .get(["host"], function (result) {
+          if (result.host == "" || result.host == null) {
+            console.error("The IP of the host is not set.");
+            return;
           }
+
+          var jsonData = JSON.stringify({
+            URL: urlkey,
+            uuid: uuid,
+          });
+
+          fetch(result.host + "/api/v2/state", {
+            method: "POST",
+            body: jsonData,
+            headers: {
+              "Content-Type": "application/json",
+              Connection: "close",
+              "Content-Length": jsonData.length,
+            },
+          })
+            .then((res) => {
+              return res.json();
+            })
+            .then((data) => {
+              let jsonResp = JSON.stringify(data[0]);
+              jsonResp = JSON.parse(jsonResp);
+
+              if (jsonResp.result == "PROCESSING") {
+                // if (jsonResp.state == "textsearch") {
+                //   step1.style.fontWeight = "bold";
+                //   spinner2.style.display = "none";
+                //   spinner3.style.display = "none";
+                // } else if (jsonResp.state == "imagesearch") {
+                //   step1.style.color = "#4CAF50";
+                //   step1.style.fontWeight = "bold";
+                //   step2.style.fontWeight = "bold";
+                //   spinner2.style.display = "inline-block";
+                //   spinner3.style.display = "none";
+                //   spinner1.className = "checkmark";
+                // } else {
+                //   step1.style.color = "#4CAF50";
+                //   step2.style.color = "#4CAF50";
+                //   step1.style.fontWeight = "bold";
+                //   step2.style.fontWeight = "bold";
+                //   step3.style.fontWeight = "bold";
+                //   spinner1.className = "checkmark";
+                //   spinner2.className = "checkmark";
+                //   spinner3.style.display = "inline-block";
+                // }
+              } else {
+                progressdiv.style.display = "none";
+                updatestatebutton.style.display = "none";
+                updateContent();
+                clearInterval(intervalId);
+                // phishinglist.style.height = "255px";
+              }
+            });
         })
         .catch((err) => {
           // An error occured. This can be the timeout, or some other error.

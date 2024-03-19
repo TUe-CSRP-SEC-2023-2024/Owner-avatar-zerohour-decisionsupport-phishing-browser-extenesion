@@ -149,7 +149,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
             console.log(jsonResp.result);
 
             if (jsonResp.result == "PROCESSING") {
-              checkLoop(tabid, urlkey, title, screenshot, uuid, 0);
+              checkAgain(tabid, urlkey, title, screenshot, uuid, 0);
             } else {
               // change icon
               if (jsonResp.result == "PHISHING") {
@@ -192,7 +192,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
           .catch((err) => {
             // An error occured. This can be the timeout, or some other error.
             console.log(err);
-            checkLoop(tabid, urlkey, title, screenshot, uuid, 0);
+            checkAgain(tabid, urlkey, title, screenshot, uuid, 0);
           });
       });
     }
