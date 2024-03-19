@@ -3,6 +3,11 @@ import { setup, storeResponse, deleteResponse } from "./storage.js";
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Installed");
   setup();
+  chrome.tabs.query({}, function (tabs) {
+    tabs.forEach(function (tab) {
+      chrome.tabs.reload(tab.id);
+    });
+  });
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {

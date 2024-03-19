@@ -2,8 +2,17 @@ const { hostname } = new URL(location.href);
 
 var checkstatus = "PROCESSING";
 
+window.addEventListener("focus", function () {
+  checkPhishing();
+});
+
 // Wait for the page to have loaded before trying to count the password fields
 window.addEventListener("load", function () {
+  checkPhishing();
+});
+
+
+function checkPhishing () {
   var inputs = document.querySelectorAll("input[type=password]");
   
   if (
@@ -51,7 +60,7 @@ window.addEventListener("load", function () {
       document.querySelector(".tooltipphish").remove();
     });
   }
-});
+}
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.result == "PHISHING") {
