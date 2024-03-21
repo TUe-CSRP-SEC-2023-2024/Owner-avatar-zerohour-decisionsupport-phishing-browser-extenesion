@@ -96,7 +96,6 @@ function deleteResponse(urlkey) {
   );
 }
 
-
 // Delete all urlCacheIds content in local storage
 function clearUrlStorage() {
   chrome.storage.local.remove("urlCacheIds", function () {
@@ -121,4 +120,23 @@ function clearAllStorage() {
   });
 }
 
-export { setup, clearUrlStorage, clearAllStorage, storeResponse, deleteResponse };
+function setHost(host) {
+  chrome.storage.local.set(
+    {
+      host: host,
+    },
+    function () {
+      console.log("Server host set to: " + host);
+      getServerCapabilities();
+    }
+  );
+}
+
+export {
+  setup,
+  clearUrlStorage,
+  clearAllStorage,
+  storeResponse,
+  deleteResponse,
+  setHost,
+};
