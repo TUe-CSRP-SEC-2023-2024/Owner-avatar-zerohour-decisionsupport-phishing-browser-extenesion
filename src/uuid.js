@@ -1,6 +1,7 @@
 // Yes, a UUID that is based on Math.random is not a good uuid
 // For the purposes it is used, it is more than fine
-function createUUID() {
+// TODO: move UUID creation to serverside
+export function createUUID() {
   var dt = new Date().getTime();
   var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
     /[xy]/g,
@@ -12,5 +13,3 @@ function createUUID() {
   );
   return uuid;
 }
-
-export { createUUID };

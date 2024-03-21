@@ -1,4 +1,4 @@
-import { setup, storeResponse, deleteResponse } from "./storage.js";
+import { setup, storeResponse } from "./storage.js";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Installed");
