@@ -127,7 +127,6 @@ function setHost(host) {
     },
     function () {
       console.log("Server host set to: " + host);
-      getServerCapabilities();
     }
   );
 }

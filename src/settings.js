@@ -20,6 +20,7 @@ chrome.tabs.query(
       let host = http + serverIPField.value + ":" + serverPortField.value;
 
       setHost(host);
+      getServerCapabilities();
     });
 
     deleteDataButton.addEventListener("click", () => {
