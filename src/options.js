@@ -1,50 +1,62 @@
-import { setup, clearAllStorage, setHost } from "./storage.js";
-
 chrome.tabs.query(
   {
     active: true,
     lastFocusedWindow: true,
   },
   (tabs) => {
-    let serverIPField = document.getElementById("server-ip");
-    let serverPortField = document.getElementById("server-port");
-    let httpsCheckbox = document.getElementById("https-checkbox");
-    let saveButton = document.getElementById("save-button");
-    let deleteDataButton = document.getElementById("delete-data-button");
+    let settingsButton = document.getElementById("settings-button");
+    let aboutButton = document.getElementById("about-button");
 
-    loadLocalSettings(httpsCheckbox, serverIPField, serverPortField);
-    getServerCapabilities();
-
-    saveButton.addEventListener("click", () => {
-      let http = httpsCheckbox.checked ? "https://" : "http://";
-      let host = http + serverIPField.value + ":" + serverPortField.value;
-
-      setHost(host);
+    settingsButton.addEventListener("click", () => {
+      loadContent("settings");
     });
-
-    deleteDataButton.addEventListener("click", () => {
-      clearAllStorage();
-      console.log("Data deleted successfully!");
-      chrome.runtime.reload();
+    aboutButton.addEventListener("click", () => {
+      loadContent("about");
     });
   }
 );
 
-function loadLocalSettings(httpsCheckbox, serverIPField, serverPortField) {
-  chrome.storage.local.get(["host"], function (result) {
-    httpsCheckbox.checked = result.host.includes("https");
-    serverIPField.value = result.host.split(":")[1].substring(2);
-    serverPortField.value = result.host.split(":")[2];
-  });
+// Loads the content of the tab based on the name of the HTML file
+function loadContent(contentName) {
+  let contentURL = contentName;
+
+  if (!contentURL.includes(".html")) {
+    contentURL = contentURL + ".html";
+  }
+
+  fetch(contentURL, { method: "GET" })
+    .then((res) => {
+      console.log(res);
+      return res.text();
+    })
+    .then((data) => {
+      document.getElementById("content").innerHTML = data;
+      // Update the URL based on the current tab
+      window.location.hash = contentName;
+    })
+    .catch((error) => {
+      console.error(
+        "There was en error trying to load the content dynamically. ",
+        error
+      );
+    });
 }
 
-function getServerCapabilities() {
-  chrome.storage.local.get(["host"], function (result) {
-    fetch(result.host + "/api/v2/capabilities")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.decision_strategies);
-        console.log(data.detection_methods);
-      });
-  });
+// This function loads the content based on the hash(#) value in the URL
+function loadContentFromHash() {
+  var hash = window.location.hash.substring(1);
+  if (hash) {
+    loadContent(hash);
+  } else {
+    loadContent("settings", "settings.html"); // Main content
+  }
 }
+
+// This function is called when the page is loaded
+window.onload = function () {
+  // Load the content based on the hash(#) value
+  loadContentFromHash();
+};
+
+// This event is called when the hash(#) value of the URL changes
+window.addEventListener("hashchange", loadContentFromHash);
