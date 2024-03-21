@@ -1,6 +1,6 @@
 const { hostname } = new URL(location.href);
 
-var checkstatus = "PROCESSING";
+let checkstatus = "PROCESSING";
 
 window.addEventListener("focus", function () {
   checkPhishing();
@@ -11,96 +11,145 @@ window.addEventListener("load", function () {
   checkPhishing();
 });
 
+/**
+ * Gets a list of the password field elements on the page.
+ * 
+ * @returns the password field elements.
+ */
+function getPasswordFields() {
+  return document.querySelectorAll("input[type=password]");
+}
 
-function checkPhishing () {
-  var inputs = document.querySelectorAll("input[type=password]");
-  
-  if (
-    !hostname.includes("google.") &&
+/**
+ * Checks if the document is a login page.
+ * 
+ * @returns a boolean.
+ */
+function isLoginPage() {
+  let password_fields = getPasswordFields();
+
+  return !hostname.includes("google.") &&
     !hostname.includes("chrome://") &&
-    !hostname.includes("bit.ly") && // why?
+    !hostname.includes("bit.ly") && // TODO: why URL
     hostname.includes(".") &&
-    inputs.length > 0
-  ) {
-    chrome.runtime.sendMessage({
-      url: chrome.runtime.url,
-    });
+    password_fields.length != 0
+}
+
+
+/**
+ * Runs a phishing check on the current page, if it's a login page.
+ */
+function checkPhishing() {
+  if (!isLoginPage()) {
+    return;
   }
 
-  // add listeners to password fields
-  for (var i = 0; i < inputs.length; i++) {
-    inputs[i].addEventListener("focusin", () => {
-      if (checkstatus == "PROCESSING") {
-        var tooltipWrap = document.createElement("div"); //creates div
-        tooltipWrap.className = "tooltipphish"; //adds class
+  checkstatus = "PROCESSING";
 
-        var tooltipText = document.createElement("span"); //creates div
-        tooltipText.className = "tooltiptext"; //adds class
+  // Send message to service to start phishing check
+  chrome.runtime.sendMessage({
+    url: chrome.runtime.url,
+  });
+
+  let password_fields = getPasswordFields();
+
+  // Add warning messages to input fields
+  for (let i = 0; i < password_fields.length; i++) {
+    password_fields[i].addEventListener("focusin", () => {
+      if (checkstatus == "PROCESSING") {
+        // TODO extract this stuff to separate HTML file as much as possible (positioning probably not possible)
+
+        // Create main div
+        let tooltipDiv = document.createElement("div");
+        tooltipDiv.className = "tooltipphish";
+
+        // Add warning text to div
+        let tooltipText = document.createElement("span");
+        tooltipText.className = "tooltiptext";
         tooltipText.innerHTML =
           "CAUTION: do not enter your details! The anti-phishing plug-in is still running!";
+        tooltipDiv.appendChild(tooltipText);
 
-        tooltipWrap.appendChild(tooltipText);
-        var firstChild = document.body.firstChild; //gets the first element after body
-        firstChild.parentNode.insertBefore(tooltipWrap, firstChild);
-
-        var padding = 30;
-        var fieldProps = event.target.getBoundingClientRect();
-        var tooltipProps = tooltipWrap.getBoundingClientRect();
-        var topPos = fieldProps.top - (tooltipProps.height + padding);
-        tooltipWrap.style.cssText =
+        // Position div near password field
+        let padding = 30;
+        let fieldProps = event.target.getBoundingClientRect();
+        let tooltipProps = tooltipDiv.getBoundingClientRect();
+        let topPos = fieldProps.top - (tooltipProps.height + padding);
+        tooltipDiv.style.cssText =
           "left:" +
           fieldProps.left +
           "px;top:" +
           topPos +
           "px;position:absolute;z-index:100;background: #F4FF47;border-radius:6px;padding: 6px 12px;font-family: arial;font-size: 12px;text-shadow: 0px 1px 1px #000;color: #011a15;";
+
+        // Add div to webpage
+        let firstChild = document.body.firstChild;
+        document.body.insertBefore(tooltipDiv, firstChild);
       }
     });
 
-    inputs[i].addEventListener("focusout", () => {
+    // Remove added div when the password field loses focuss
+    password_fields[i].addEventListener("focusout", () => {
       document.querySelector(".tooltipphish").remove();
     });
   }
 }
 
+/**
+ * Listener for phishing check status updates.
+ */
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.result == "PHISHING") {
+    // Update status
     checkstatus = "PHISHING";
+
     // Check if still on same domain, if yes then display warning
-    var hostname1 = new URL(location.href).hostname;
-    var hostname2 = new URL(request.url).hostname;
-    if (hostname1 == hostname2) {
-      //alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
+    let origin_hostname = new URL(request.url).hostname;
+    let current_hostname = new URL(location.href).hostname;
+
+    if (current_hostname == origin_hostname) {
+      // TODO: use as possible notification method:
+      // alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
 
       if (document.getElementById("antiphishingpopup") == null) {
-        var alertPopup = document.createElement("div");
-        alertPopup.setAttribute("id", "antiphishingpopup");
-        alertPopup.innerHTML +=
+        // TODO: extract to separate HTML file
+        let popup = document.createElement("div");
+        popup.setAttribute("id", "antiphishingpopup");
+        popup.innerHTML +=
           '<div style="padding: 10%;"><div style="width: 150px; float: left; margin-right: 20px;"><img style="width:100%;" src="https://upload.wikimedia.org/wikipedia/commons/8/81/Stop_sign.png" /></div><div style="float:left;"><h1 style="color:#fff; border-bottom: 1px solid white; font-size: xxx-large; margin:10px;padding:20px 10px; text-align:left;">Phishing Detected!</h1><p style="color:#fff;font-weight: bold;font-size: large;margin:10px;padding:20px 10px;text-align:left;">The website you are trying to visit has been reported a phishing site by your Anti-Phishing browser plugin.</p><p style="color:#fff;font-weight: bold;font-size: large;margin:10px;padding:20px 10px;text-align:left;">Phishing websites are designed to trick you into revealing personal or financial information by imitating sources your may trust.</p><p style="color:#fff;font-weight: bold;font-size: large;margin:10px;padding:20px 10px;text-align:left;">Entering any information on this web page may result in identity theft or other fraud.<br><br><br><br>Please close this window now.</p><br/><br/><button style="cursor:pointer;float:right;text-decoration:underline;background:none;color:#000;border:none;" onClick="document.getElementById(&quot;antiphishingpopup&quot;).style.display = &quot;none&quot;;">Ignore this warning</button><br/><button id="whitelistwarning" style="cursor:pointer;float:right;text-decoration:underline;background:none;color:#000;border:none;" onClick="document.getElementById(&quot;antiphishingpopup&quot;).style.display = &quot;none&quot;;">Whitelist this page</button></div></div>';
-        alertPopup.style.cssText =
+        popup.style.cssText =
           "position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;background:#772222;";
-        document.body.appendChild(alertPopup);
+        document.body.appendChild(popup);
+        
         document
           .getElementById("whitelistwarning")
           .addEventListener("click", () => {
-            whitelistPhish();
+            addPageToWhitelist();
           });
       }
     }
   } else if (request.result == "LEGITIMATE") {
+    // Update status
     checkstatus = "LEGITIMATE";
+
+    // Remove password field tooltip
     document.querySelector(".tooltipphish").remove();
   }
 });
 
-function whitelistPhish() {
+/**
+ * Adds current page to whitelist.
+ */
+function addPageToWhitelist() {
   chrome.storage.local.get(
     {
       urlCacheIds: [],
     },
     function (result) {
-      var i;
-      for (i = 0; i < result.urlCacheIds.length; i++) {
+      for (let i = 0; i < result.urlCacheIds.length; i++) {
+        // Check if this is the current page
         if (result.urlCacheIds[i].urlId == location.href) {
+          // Set it to legitimate and store the result
           result.urlCacheIds[i].result = "LEGITIMATE";
 
           chrome.storage.local.set(
