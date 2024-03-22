@@ -25,10 +25,17 @@ function loadContent(tab) {
   }
 
   //check if the tab has a script file and load it
-
   let iframe = document.getElementById("content");
   iframe.src = tab + ".html";
-  
+
+  let buttons = document.getElementsByClassName("header-button active");
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove("active");
+  }
+
+  let button = document.getElementById(tab + "-button");
+  button.classList.add("active");
+
   fetch(tab + ".html", { method: "GET" })
     .then((res) => {
       console.log(res);

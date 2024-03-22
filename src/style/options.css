@@ -9,10 +9,54 @@ html {
 
 header {
   top: 0px;
-  justify-content: space-between;
   position: fixed;
   z-index: 1;
   width: 100%;
+  flex-shrink: 0;
+  overflow-x: hidden;
+}
+
+.header-icon {
+  margin-right: 10px;
+}
+
+.header-button {
+  color: white;
+  align-content: center;
+  text-align: center;
+  font-size: 16px;
+  padding-left: 10px;
+  padding-right: 10px;
+  white-space: nowrap;
+  font-weight: bold;
+  height: 100%;
+  position: relative;
+}
+
+.header-button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background-color: transparent;
+}
+
+.header-button:hover {
+  background-color: #353535;
+}
+
+.header-button:hover::after {
+  background-color: #454545;
+}
+
+.header-button:active::after {
+  background-color: white;
+}
+
+.header-button.active::after {
+  background-color: white;
 }
 
 body {

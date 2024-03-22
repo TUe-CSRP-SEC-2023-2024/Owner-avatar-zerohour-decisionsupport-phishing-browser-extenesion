@@ -8,6 +8,7 @@ header {
   padding: 0px;
   margin: 0px;
   border-bottom: #252525 2px solid;
+  user-select: none;
 }
 
 body {
@@ -67,7 +68,7 @@ label {
 
 .header-content {
   height: 50px;
-  padding: 10px;
+  padding-left: 10px;
   display: flex;
   flex-direction: row;
   align-items: center;
