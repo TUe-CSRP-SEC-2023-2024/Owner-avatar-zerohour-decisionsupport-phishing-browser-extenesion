@@ -2,7 +2,7 @@
  * Gets the URL to a HTML file.
  * 
  * @param {string} file the relative HTML file path (including .html).
- * @returns 
+ * @returns the absolute URL to the HTML file.
  */
 function getHTMLURL(file) {
   return chrome.runtime.getURL("webpage_content/html/" + file);
