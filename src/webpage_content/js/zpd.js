@@ -11,7 +11,6 @@ window.addEventListener("focus", function () {
 
 // Wait for the page to have loaded before trying to count the password fields
 window.addEventListener("load", function () {
-  console.log("loaded some page");
   checkPhishing();
 });
 
@@ -77,6 +76,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
   } else if (request.result == "LEGITIMATE") {
     // Remove password field tooltip
-    PasswordInputWarning.remove_warnings();
+    PasswordInputWarning.remove();
   }
 });

@@ -1,5 +1,14 @@
+/**
+ * A warning above the password field telling the user that
+ * the extension is still processing the webpage.
+ */
 class PasswordInputWarning {
-  static display_warning(password_field) {
+  /**
+   * Displays the warning on the given password field.
+   * 
+   * @param {Element} password_field the password field.
+   */
+  static display(password_field) {
     // Create main div
     let tooltipDiv = document.createElement("div");
     tooltipDiv.className = "tooltipphish";
@@ -32,13 +41,19 @@ class PasswordInputWarning {
   /**
    * Remove the notification warnings from the current page.
    */
-  static remove_warnings() {
+  static remove() {
     let selector = document.querySelector(".tooltipphish");
     if (selector) {
       selector.remove();
     }
   }
 
+  /**
+   * Adds listeners to the given password field to automatically display
+   * the warning if needed.
+   * 
+   * @param {Element} password_field the password field to handle.
+   */
   static handle_field(password_field) {
     password_field.addEventListener("focusin", () => {
       if (checkstatus == "PROCESSING") {
