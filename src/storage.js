@@ -121,6 +121,7 @@ function clearAllStorage() {
 }
 
 function setHost(host) {
+  console.log("Setting host to: " + host);
   chrome.storage.local.set(
     {
       host: host,

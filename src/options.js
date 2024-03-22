@@ -1,3 +1,5 @@
+const tabs = ["settings", "about"];
+
 chrome.tabs.query(
   {
     active: true,
@@ -17,14 +19,17 @@ chrome.tabs.query(
 );
 
 // Loads the content of the tab based on the name of the HTML file
-function loadContent(contentName) {
-  let contentURL = contentName;
-
-  if (!contentURL.includes(".html")) {
-    contentURL = contentURL + ".html";
+function loadContent(tab) {
+  if (!tabs.includes(tab)) {
+    return;
   }
 
-  fetch(contentURL, { method: "GET" })
+  //check if the tab has a script file and load it
+
+  let iframe = document.getElementById("content");
+  iframe.src = tab + ".html";
+  
+  fetch(tab + ".html", { method: "GET" })
     .then((res) => {
       console.log(res);
       return res.text();
@@ -32,7 +37,7 @@ function loadContent(contentName) {
     .then((data) => {
       document.getElementById("content").innerHTML = data;
       // Update the URL based on the current tab
-      window.location.hash = contentName;
+      window.location.hash = tab;
     })
     .catch((error) => {
       console.error(
@@ -44,11 +49,11 @@ function loadContent(contentName) {
 
 // This function loads the content based on the hash(#) value in the URL
 function loadContentFromHash() {
-  var hash = window.location.hash.substring(1);
-  if (hash) {
-    loadContent(hash);
+  var tab = window.location.hash.substring(1);
+  if (tabs.includes(tab)) {
+    loadContent(tab);
   } else {
-    loadContent("settings", "settings.html"); // Main content
+    loadContent("settings"); // main tab
   }
 }
 

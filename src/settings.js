@@ -16,7 +16,7 @@ chrome.tabs.query(
     getServerCapabilities();
 
     saveButton.addEventListener("click", () => {
-      let http = httpsCheckbox.checked ? "https://" : "http://";
+      let http = httpsCheckbox.checked ?  "https://" : "http://";
       let host = http + serverIPField.value + ":" + serverPortField.value;
 
       setHost(host);
@@ -46,6 +46,11 @@ function getServerCapabilities() {
       .then((data) => {
         console.log(data.decision_strategies);
         console.log(data.detection_methods);
+      }).catch((error) => {
+        console.error(
+          "There was an error trying to get the server capabilities.",
+          error
+        );
       });
   });
 }
