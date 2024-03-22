@@ -28,7 +28,19 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "run_at": "document_end",
-      "js": ["contentScript.js"]
+      "js": [
+        "webpage_content/js/zpd.js", 
+        "webpage_content/js/notification_methods/password_input_warning.js",
+        "webpage_content/js/notification_methods/phishing_popup.js",
+        "webpage_content/js/util.js"
+      ]
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [ "webpage_content/html/*.html" ],
+      "matches": ["http://*/*", "https://*/*"]
     }
   ],
 
