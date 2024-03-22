@@ -37,6 +37,7 @@ class PhishingPopup {
    * Adds current page to whitelist.
    */
   static addPageToWhitelist() {
+    // TODO move to service or the like
     chrome.storage.local.get(
       {
         urlCacheIds: [],
