@@ -1,12 +1,35 @@
+html {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  position: relative;
+}
+
+header {
+  top: 0px;
+  justify-content: space-between;
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+}
+
 body {
-  text-align: center;
   height: 100%;
+  margin-top: 70px;
+  align-items: center;
+  text-align: center;
+  display: flex;
+  overflow: hidden;
 }
 
 iframe {
   border: 0;
   margin: 0;
+  padding: 0;
   width: 100%;
-  height: 500px;
+  height: 100vh;
   border-color: transparent;
+  position: relative;
 }
