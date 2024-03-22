@@ -38,7 +38,7 @@ function isLoginPage() {
  * Runs a phishing check on the current page, if it's a login page.
  */
 function checkPhishing() {
-  if (!isLoginPage()) {
+  if (checkstatus || !isLoginPage()) {
     return;
   }
 
@@ -61,7 +61,9 @@ function checkPhishing() {
  * Listener for phishing check status updates.
  */
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  checkstatus = request.result;
+  if (request.result != "QUEUED") {
+    checkstatus = request.result;
+  }
 
   if (request.result == "PHISHING") {
     // Check if still on same domain
