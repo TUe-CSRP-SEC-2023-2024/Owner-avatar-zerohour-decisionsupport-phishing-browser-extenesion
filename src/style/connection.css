@@ -1,0 +1,39 @@
+div.status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle {
+  margin-right: 10px;
+  background-color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.circle.connected {
+  background-color: #4caf50;
+}
+
+.circle.checking {
+  background-color: #ffeb3b;
+}
+
+.circle.disconnected {
+  background-color: #f44336;
+}
+
+.connected {
+  color: #4caf50;
+}
+
+.checking {
+  color: #ffeb3b;
+}
+
+.disconnected {
+  color: #f44336;
+}

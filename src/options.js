@@ -1,4 +1,4 @@
-const tabs = ["settings", "about"];
+const tabs = ["settings", "connection", "notifications", "about"];
 
 chrome.tabs.query(
   {
@@ -7,10 +7,18 @@ chrome.tabs.query(
   },
   (tabs) => {
     let settingsButton = document.getElementById("settings-button");
+    let connectionButton = document.getElementById("connection-button");
+    let notificationsButton = document.getElementById("notifications-button");
     let aboutButton = document.getElementById("about-button");
 
     settingsButton.addEventListener("click", () => {
       loadContent("settings");
+    });
+    connectionButton.addEventListener("click", () => {
+      loadContent("connection");
+    });
+    notificationsButton.addEventListener("click", () => {
+      loadContent("notifications");
     });
     aboutButton.addEventListener("click", () => {
       loadContent("about");
