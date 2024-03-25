@@ -37,3 +37,12 @@ function parseHTML(html, id = null) {
   div.innerHTML = html;
   return div;
 }
+
+/**
+ * Gets a list of the password field elements on the page.
+ * 
+ * @returns the password field elements.
+ */
+function getPasswordFields() {
+  return document.querySelectorAll("input[type=password]");
+}

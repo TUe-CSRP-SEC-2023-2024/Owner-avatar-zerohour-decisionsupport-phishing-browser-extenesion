@@ -15,15 +15,6 @@ window.addEventListener("load", function () {
 });
 
 /**
- * Gets a list of the password field elements on the page.
- * 
- * @returns the password field elements.
- */
-function getPasswordFields() {
-  return document.querySelectorAll("input[type=password]");
-}
-
-/**
  * Checks if the document is a login page.
  * 
  * @returns a boolean.
