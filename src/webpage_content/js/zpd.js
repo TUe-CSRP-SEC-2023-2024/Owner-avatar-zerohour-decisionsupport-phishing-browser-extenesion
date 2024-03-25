@@ -31,7 +31,7 @@ function getPasswordFields() {
 function isLoginPage() {
   let password_fields = getPasswordFields();
 
-  return password_fields.length != 0;
+  return password_fields.length !== 0;
 }
 
 /**
@@ -46,6 +46,7 @@ function checkPhishing() {
 
   // Send message to service to start phishing check
   chrome.runtime.sendMessage({
+    type: "CHECK_PHISHING",
     url: chrome.runtime.url,
   });
 
@@ -61,22 +62,26 @@ function checkPhishing() {
  * Listener for phishing check status updates.
  */
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.result != "QUEUED") {
+  if (request.type !== "CHECK_STATUS") {
+    return;
+  }
+
+  if (request.result !== "QUEUED") {
     checkstatus = request.result;
   }
 
-  if (request.result == "PHISHING") {
+  if (request.result === "PHISHING") {
     // Check if still on same domain
     let original_hostname = new URL(request.url).hostname;
     let current_hostname = new URL(location.href).hostname;
 
-    if (current_hostname == original_hostname) {
+    if (current_hostname === original_hostname) {
       // TODO: use as possible notification method:
       // alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
 
       PhishingPopup.display();
     }
-  } else if (request.result == "LEGITIMATE") {
+  } else if (request.result === "LEGITIMATE") {
     // Remove password field tooltip
     PasswordInputWarning.remove();
   }

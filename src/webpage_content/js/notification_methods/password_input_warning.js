@@ -46,7 +46,7 @@ class PasswordInputWarning {
    */
   static handle_field(password_field) {
     password_field.addEventListener("focusin", () => {
-      if (checkstatus == "PROCESSING") {
+      if (checkstatus === "PROCESSING") {
         PasswordInputWarning.display(password_field);
       }
     });

@@ -11,6 +11,10 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.type !== "CHECK_PHISHING") {
+    return;
+  }
+
   updateBadge();
 
   // if tab is not active, we can't get the screenshot
@@ -87,12 +91,13 @@ function process(tabid, urlkey, title, screenshot, uuid) {
           }
 
           chrome.tabs.sendMessage(tabid, {
+            type: "CHECK_STATUS",
             result: result.urlCacheIds[i].result,
             url: urlkey,
           });
           if (
-            result.urlCacheIds[i].result != "QUEUED" &&
-            result.urlCacheIds[i].result != "PROCESSING"
+            result.urlCacheIds[i].result !== "QUEUED" &&
+            result.urlCacheIds[i].result !== "PROCESSING"
           ) {
             return;
           }
@@ -184,6 +189,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
                 });
               }
               chrome.tabs.sendMessage(tabid, {
+                type: "CHECK_STATUS",
                 result: jsonResp.result,
                 url: jsonResp.url,
               });
@@ -275,6 +281,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
             });
           }
           chrome.tabs.sendMessage(tabid, {
+            type: "CHECK_STATUS",
             result: jsonResp.result,
             url: urlkey,
           });

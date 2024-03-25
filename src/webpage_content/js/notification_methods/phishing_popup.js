@@ -6,7 +6,7 @@ class PhishingPopup {
    * Displays the popup.
    */
   static display() {
-    if (document.getElementById("antiphishingpopup") == null) {
+    if (document.getElementById("antiphishingpopup") === null) {
       fetchHTML('phishing_warning.html').then(html => {
         document.body.appendChild(parseHTML(html, 'antiphishingpopup'));
 
@@ -45,7 +45,7 @@ class PhishingPopup {
       function (result) {
         for (let i = 0; i < result.urlCacheIds.length; i++) {
           // Check if this is the current page
-          if (result.urlCacheIds[i].urlId == location.href) {
+          if (result.urlCacheIds[i].urlId === location.href) {
             // Set it to legitimate and store the result
             result.urlCacheIds[i].result = "LEGITIMATE";
 
