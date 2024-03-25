@@ -5,6 +5,11 @@ const { hostname } = new URL(location.href);
  */
 let checkstatus;
 
+const PROCESSING = "PROCESSING";
+const INCONCLUSIVE = "INCONCLUSIVE";
+const LEGITIMATE = "LEGITIMATE";
+const PHISHING = "PHISHING";
+
 window.addEventListener("focus", function () {
   checkPhishing();
 });
@@ -25,6 +30,9 @@ function isLoginPage() {
   return password_fields.length !== 0;
 }
 
+let password_warns = new PasswordInputWarning();
+let phishing_popup = new PhishingPopup();
+
 /**
  * Runs a phishing check on the current page, if it's a login page.
  */
@@ -35,18 +43,14 @@ function checkPhishing() {
 
   checkstatus = "PROCESSING";
 
+  password_warns.setup();
+  phishing_popup.setup();
+
   // Send message to service to start phishing check
   chrome.runtime.sendMessage({
     type: "CHECK_PHISHING",
     url: chrome.runtime.url,
   });
-
-  let password_fields = getPasswordFields();
-
-  // Add warning messages to input fields
-  for (let i = 0; i < password_fields.length; i++) {
-    PasswordInputWarning.handle_field(password_fields[i]);
-  }
 }
 
 /**
@@ -57,23 +61,22 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return;
   }
 
+  let original_hostname = new URL(request.url).hostname;
+  let current_hostname = new URL(location.href).hostname;
+  if (original_hostname !== current_hostname) {
+    return;
+  }
+
+  let prev_checkstatus = checkstatus;
   if (request.result !== "QUEUED") {
     checkstatus = request.result;
   }
-
-  if (request.result === "PHISHING") {
-    // Check if still on same domain
-    let original_hostname = new URL(request.url).hostname;
-    let current_hostname = new URL(location.href).hostname;
-
-    if (current_hostname === original_hostname) {
-      // TODO: use as possible notification method:
-      // alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
-
-      PhishingPopup.display();
-    }
-  } else if (request.result === "LEGITIMATE") {
-    // Remove password field tooltip
-    PasswordInputWarning.remove();
+  
+  if (checkstatus != prev_checkstatus) {
+    password_warns.onStateChange(prev_checkstatus, checkstatus);
+    phishing_popup.onStateChange(prev_checkstatus, checkstatus);
   }
+
+  // TODO: use as possible notification method:
+  // alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
 });
