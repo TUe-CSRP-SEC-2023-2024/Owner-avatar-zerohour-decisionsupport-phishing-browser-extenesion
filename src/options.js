@@ -41,7 +41,6 @@ function loadContent(tab) {
 
   fetch(tab + ".html", { method: "GET" })
     .then((res) => {
-      console.log(res);
       return res.text();
     })
     .then((data) => {
