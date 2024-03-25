@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<head>
+  <link rel="stylesheet" href="style/main.css" />
+  <link rel="stylesheet" href="style/connection.css" />
+  <script src="connection.js" type="module"></script>
+</head>
+
+<body>
+  <h1>Connection Settings</h1>
+  <div class="status">
+    <span id="connection-status-circle" class="circle checking"></span>
+    <h2 id="connection-status" class="checking" >Checking...</h2>
+  </div>
+  <label>API Server IP</label>
+  <input type="text" id="server-ip" />
+  <br />
+  <br />
+  <label>API Server Port</label>
+  <input type="number" min="0" max="65535" id="server-port" />
+  <br />
+  <br />
+  <label>Use HTTPS</label>
+  <input type="checkbox" id="https-checkbox" />
+  <br />
+  <br />
+  <button id="save-button">Save & Connect</button>
+</body>
