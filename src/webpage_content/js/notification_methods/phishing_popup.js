@@ -37,28 +37,9 @@ class PhishingPopup {
    * Adds current page to whitelist.
    */
   static addPageToWhitelist() {
-    // TODO move to service or the like
-    chrome.storage.local.get(
-      {
-        urlCacheIds: [],
-      },
-      function (result) {
-        for (let i = 0; i < result.urlCacheIds.length; i++) {
-          // Check if this is the current page
-          if (result.urlCacheIds[i].urlId === location.href) {
-            // Set it to legitimate and store the result
-            result.urlCacheIds[i].result = "LEGITIMATE";
-
-            chrome.storage.local.set(
-              {
-                urlCacheIds: result.urlCacheIds,
-              },
-              function (result) {}
-            );
-            break;
-          }
-        }
-      }
-    );
+    chrome.runtime.sendMessage({
+      type: "WHITELIST_PAGE",
+      url: location.href
+    })
   }
 }

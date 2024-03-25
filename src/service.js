@@ -23,6 +23,40 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   });
 });
 
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.type !== "WHITELIST_PAGE") {
+    return;
+  }
+
+  let url = request.url;
+
+  chrome.storage.local.get(
+    {
+      urlCacheIds: [],
+    },
+    function (result) {
+      for (let i = 0; i < result.urlCacheIds.length; i++) {
+        // Check if this is the current page
+        if (result.urlCacheIds[i].urlId === url) {
+          // Set it to legitimate and store the result
+          result.urlCacheIds[i].result = "LEGITIMATE";
+
+          chrome.storage.local.set(
+            {
+              urlCacheIds: result.urlCacheIds,
+            },
+            function (result) {}
+          );
+
+          // TODO: update icon & badge
+
+          break;
+        }
+      }
+    }
+  );
+})
+
 // Clear local storage on fresh chrome startup
 chrome.runtime.onStartup.addListener(() => {
   clearUrlStorage();
