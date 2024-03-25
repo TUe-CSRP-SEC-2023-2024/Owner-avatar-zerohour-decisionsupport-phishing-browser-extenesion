@@ -9,7 +9,6 @@ let headerContent = document.getElementById("header-content");
 let buttons = [];
 
 tabs.forEach((name, id) => {
-  console.log(name);
   let button = document.createElement("div");
   button.id = id + "-button";
   button.className = "header-button";
