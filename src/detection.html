@@ -1,30 +1,27 @@
 <!DOCTYPE html>
 <head>
   <link rel="stylesheet" href="style/main.css" />
-  <link rel="stylesheet" href="style/settings.css" />
-  <script src="settings.js" type="module"></script>
+  <script src="detection.js" type="module"></script>
 </head>
 <body>
   <div>
     <h1>Detection Settings</h1>
-    <label>Detection Method</label>
-    <select name="Detection Method" id="">
-      <option>Test</option>
-    </select>
-    <br />
-    <br />
-    <label>Decision Strategy</label>
-    <select name="Decision Strategy" id="">
-      <option>Majority</option>
-      <option>Unanimous</option>
-      <option>Strict</option>
-    </select>
-    <br />
-    <br />
-    <label>Bypass cache?</label>
-    <input type="checkbox" id="delete-data-checkbox" />
-    <br />
-  <br />
-  <button id="save-button">Save</button>
+    <div id="">
+      <label>Detection Method</label>
+      <select name="Detection Method" id="detection-method-select">
+      </select>
+      <br />
+      <br />
+      <label>Decision Strategy</label>
+      <select name="Decision Strategy" id="decision-strategy-select">
+      </select>
+      <br />
+      <br />
+      <label>Bypass cache?</label>
+      <input type="checkbox" id="delete-data-checkbox" />
+      <br />
+      <br />
+      <button id="save-button">Save</button>
+    </div>
   </div>
 </body>
