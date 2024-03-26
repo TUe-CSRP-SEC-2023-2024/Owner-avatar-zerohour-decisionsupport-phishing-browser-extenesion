@@ -4,7 +4,7 @@ const { hostname } = new URL(location.href);
  * The status of the current check.
  */
 let checkstatus;
-
+// Possible values:
 const PROCESSING = "PROCESSING";
 const INCONCLUSIVE = "INCONCLUSIVE";
 const LEGITIMATE = "LEGITIMATE";
@@ -41,7 +41,7 @@ function checkPhishing() {
     return;
   }
 
-  checkstatus = "PROCESSING";
+  checkstatus = PROCESSING;
 
   password_warns.setup();
   phishing_popup.setup();

@@ -10,7 +10,7 @@ class PasswordInputWarning extends NotificationMethod {
     this.password_fields.forEach(password_field => {
       // Add focusin listener to password field
       password_field.addEventListener("focusin", () => {
-        if (checkstatus === "PROCESSING") {
+        if (checkstatus === PROCESSING) {
           this.display();
         }
       });
@@ -23,9 +23,7 @@ class PasswordInputWarning extends NotificationMethod {
   }
 
   onStateChange(oldState, newState) {
-    if (newState === PROCESSING) {
-      this.display();
-    } else {
+    if (newState != PROCESSING) {
       this.hide();
     }
   }
