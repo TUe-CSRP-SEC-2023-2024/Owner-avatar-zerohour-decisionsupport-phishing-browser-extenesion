@@ -73,51 +73,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
       for (let i = 0; i < result.urlCacheIds.length; i++) {
         if (result.urlCacheIds[i].urlId == urlkey) {
           // check status of tab for the icon change
-          if (
-            result.urlCacheIds[i].result == "QUEUED" ||
-            result.urlCacheIds.result == "PROCESSING"
-          ) {
-            chrome.action.setIcon({
-              path: {
-                16: "/images/waiting_16.png",
-                32: "/images/waiting_32.png",
-                64: "/images/waiting_64.png",
-                128: "/images/waiting_128.png",
-              },
-              tabId: tabid,
-            });
-          } else if (result.urlCacheIds[i].result == "INCONCLUSIVE") {
-            chrome.action.setIcon({
-              path: {
-                16: "/images/questionmark_16.png",
-                32: "/images/questionmark_32.png",
-                64: "/images/questionmark_64.png",
-                128: "/images/questionmark_128.png",
-              },
-              tabId: tabid,
-            });
-          } else if (result.urlCacheIds[i].result == "PHISHING") {
-            chrome.action.setIcon({
-              path: {
-                16: "/images/phishing_16.png",
-                32: "/images/phishing_32.png",
-                64: "/images/phishing_64.png",
-                128: "/images/phishing_128.png",
-              },
-              tabId: tabid,
-            });
-          } else if (result.urlCacheIds[i].result == "LEGITIMATE") {
-            console.log("Icon set to not_phishing");
-            chrome.action.setIcon({
-              path: {
-                16: "/images/not_phishing_16.png",
-                32: "/images/not_phishing_32.png",
-                64: "/images/not_phishing_64.png",
-                128: "/images/not_phishing_128.png",
-              },
-              tabId: tabid,
-            });
-          }
+          setIcon(result.urlCacheIds[i].result, tabid);
 
           chrome.tabs.sendMessage(tabid, {
             type: "CHECK_STATUS",
@@ -133,15 +89,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
         }
       }
 
-      chrome.action.setIcon({
-        path: {
-          16: "/images/waiting_16.png",
-          32: "/images/waiting_32.png",
-          64: "/images/waiting_64.png",
-          128: "/images/waiting_128.png",
-        },
-        tabId: tabid,
-      });
+      setIcon("waiting", tabid);
 
       // we do still need processing
       //console.log("New URL is " + urlkey + " and title is  " + title + " and screenshot data " + screenshot);
@@ -186,37 +134,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
               checkAgain(tabid, urlkey, title, screenshot, uuid, 0);
             } else {
               // change icon
-              if (jsonResp.result == "PHISHING") {
-                chrome.action.setIcon({
-                  path: {
-                    16: "/images/phishing_16.png",
-                    32: "/images/phishing_32.png",
-                    64: "/images/phishing_64.png",
-                    128: "/images/phishing_128.png",
-                  },
-                  tabId: tabid,
-                });
-              } else if (jsonResp.result == "LEGITIMATE") {
-                chrome.action.setIcon({
-                  path: {
-                    16: "/images/not_phishing_16.png",
-                    32: "/images/not_phishing_32.png",
-                    64: "/images/not_phishing_64.png",
-                    128: "/images/not_phishing_128.png",
-                  },
-                  tabId: tabid,
-                });
-              } else if (jsonResp.result == "INCONCLUSIVE") {
-                chrome.action.setIcon({
-                  path: {
-                    16: "/images/questionmark_16.png",
-                    32: "/images/questionmark_32.png",
-                    64: "/images/questionmark_64.png",
-                    128: "/images/questionmark_128.png",
-                  },
-                  tabId: tabid,
-                });
-              }
+              setIcon(jsonResp.result, tabid);
               chrome.tabs.sendMessage(tabid, {
                 type: "CHECK_STATUS",
                 result: jsonResp.result,
@@ -277,38 +195,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
         } else {
           console.log("late response sent to tab");
           // change icon
-          if (jsonResp.result == "PHISHING") {
-            chrome.action.setIcon({
-              path: {
-                16: "/images/phishing_16.png",
-                32: "/images/phishing_32.png",
-                64: "/images/phishing_64.png",
-                128: "/images/phishing_128.png",
-              },
-              tabId: tabid,
-            });
-          } else if (jsonResp.result == "LEGITIMATE") {
-            console.log("Icon set to not_phishing");
-            chrome.action.setIcon({
-              path: {
-                16: "/images/not_phishing_16.png",
-                32: "/images/not_phishing_32.png",
-                64: "/images/not_phishing_64.png",
-                128: "/images/not_phishing_128.png",
-              },
-              tabId: tabid,
-            });
-          } else if (jsonResp.result == "INCONCLUSIVE") {
-            chrome.action.setIcon({
-              path: {
-                16: "/images/questionmark_16.png",
-                32: "/images/questionmark_32.png",
-                64: "/images/questionmark_64.png",
-                128: "/images/questionmark_128.png",
-              },
-              tabId: tabid,
-            });
-          }
+          setIcon(jsonResp.result, tabid);
           chrome.tabs.sendMessage(tabid, {
             type: "CHECK_STATUS",
             result: jsonResp.result,
@@ -353,4 +240,29 @@ function updateBadge() {
       }
     }
   );
+}
+
+function setIcon(icon, tabid) {
+  let path = "/images/";
+  if (icon === "questionmark" || icon === "INCONCLUSIVE") {
+    path += "questionmark";
+  } else if (icon === "phishing" || icon === "PHISHING") {
+    path += "phishing";
+  } else if (icon === "not_phishing" || icon === "LEGITIMATE") {
+    path += "not_phishing";
+  } else if (icon === "waiting" || icon === "PROCESSING" || icon === "QUEUED") {
+    path += "waiting";
+  } else if (icon === "idle") {
+    path += "idle";
+  }
+
+  chrome.action.setIcon({
+    path: {
+      16: "/images/" + icon + "_16.png",
+      32: "/images/" + icon + "_32.png",
+      64: "/images/" + icon + "_64.png",
+      128: "/images/" + icon + "_128.png"
+    },
+    tabId: tabid,
+  });
 }
