@@ -1,4 +1,4 @@
-import { setup, storeResponse } from "./storage.js";
+import { setup, storeResponse, getUuid } from "./storage.js";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Installed");
@@ -18,8 +18,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return;
   }
 
-  chrome.storage.local.get(["uuid"], function (result) {
-    process(sender.tab.id, sender.tab.url, sender.tab.title, "", result.uuid);
+  getUuid().then(uuid => {
+    process(sender.tab.id, sender.tab.url, sender.tab.title, "", uuid);
   });
 });
 

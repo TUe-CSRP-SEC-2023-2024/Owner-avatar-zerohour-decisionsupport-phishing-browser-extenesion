@@ -120,16 +120,16 @@ function clearAllStorage() {
   });
 }
 
-function setHost(host) {
+async function setHost(host) {
   console.log("Setting host to: " + host);
-  chrome.storage.local.set(
-    {
-      host: host,
-    },
-    function () {
-      console.log("Server host set to: " + host);
-    }
-  );
+
+  await chrome.storage.local.set({ host: host });
+  
+  console.log("Server host set to: " + host);
+}
+
+async function getUuid() {
+  return (await chrome.storage.local.get(["uuid"])).uuid;
 }
 
 export {
@@ -139,4 +139,5 @@ export {
   storeResponse,
   deleteResponse,
   setHost,
+  getUuid
 };

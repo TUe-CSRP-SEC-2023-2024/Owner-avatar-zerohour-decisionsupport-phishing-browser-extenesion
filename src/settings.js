@@ -1,4 +1,4 @@
-import { setup, clearAllStorage, setHost } from "./storage.js";
+import { clearAllStorage } from "./storage.js";
 
 chrome.tabs.query(
   {
