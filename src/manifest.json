@@ -29,10 +29,12 @@
       "matches": ["http://*/*", "https://*/*"],
       "run_at": "document_end",
       "js": [
-        "webpage_content/js/zpd.js", 
+        "webpage_content/js/util.js",
+        "webpage_content/js/notification_methods/base.js",
         "webpage_content/js/notification_methods/password_input_warning.js",
+        "webpage_content/js/notification_methods/phishing_alert.js",
         "webpage_content/js/notification_methods/phishing_popup.js",
-        "webpage_content/js/util.js"
+        "webpage_content/js/main.js"
       ]
     }
   ],
