@@ -95,7 +95,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
       //console.log("New URL is " + urlkey + " and title is  " + title + " and screenshot data " + screenshot);
 
       // add url to cache so we do not process twice before result is known.
-      storeResponse(urlkey, "QUEUED");
+      storeResponse(urlkey, "QUEUED"); // TODO await
 
       var jsonData = JSON.stringify({
         URL: urlkey,
@@ -126,7 +126,7 @@ function process(tabid, urlkey, title, screenshot, uuid) {
           })
           .then((data) => {
             let jsonResp = JSON.parse(JSON.stringify(data));
-            storeResponse(urlkey, jsonResp.result);
+            storeResponse(urlkey, jsonResp.result); // TODO await
             updateBadge();
             console.log(jsonResp.result);
 
@@ -182,7 +182,7 @@ function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
       })
       .then((data) => {
         let jsonResp = JSON.parse(JSON.stringify(data));
-        storeResponse(urlkey, jsonResp.result);
+        storeResponse(urlkey, jsonResp.result); // TODO await
         updateBadge();
         if (i > 50) {
           //deleteResponse(urlkey)

@@ -18,46 +18,28 @@ async function setup() {
   }
 }
 
-function storeResponse(urlkey, response) {
-  // Store the url and response in cache
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      var found = false;
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (result.urlCacheIds[i].urlId == urlkey) {
-          result.urlCacheIds[i].result = response;
-          result.urlCacheIds[i].ack = false;
+async function storeResponse(urlkey, response) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
-          chrome.storage.local.set(
-            {
-              urlCacheIds: result.urlCacheIds,
-            },
-            function (result) {}
-          );
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        var urlCacheIds = result.urlCacheIds;
-        urlCacheIds.push({
-          urlId: urlkey,
-          result: response,
-          ack: false,
-        });
+  let found = false;
+  for (let i = 0; i < urlCacheIds.length; i++) {
+    if (urlCacheIds[i].urlId == urlkey) {
+      urlCacheIds[i].result = response;
+      urlCacheIds[i].ack = false;
 
-        chrome.storage.local.set(
-          {
-            urlCacheIds: urlCacheIds,
-          },
-          function (result) {}
-        );
-      }
+      found = true;
     }
-  );
+  }
+
+  if (!found) {
+    urlCacheIds.push({
+      urlId: urlkey,
+      result: response,
+      ack: false,
+    });
+  }
+
+  await chrome.storage.local.set({ urlCacheIds: urlCacheIds });
 }
 
 // NOT USED
