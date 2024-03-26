@@ -34,7 +34,7 @@
         "webpage_content/js/notification_methods/password_input_warning.js",
         "webpage_content/js/notification_methods/phishing_alert.js",
         "webpage_content/js/notification_methods/phishing_popup.js",
-        "webpage_content/js/zpd.js"
+        "webpage_content/js/main.js"
       ]
     }
   ],
