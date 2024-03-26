@@ -1,31 +1,21 @@
 import { createUUID } from "./uuid.js";
 
 // Function used to setup the local storage of the extension
-function setup() {
-  chrome.storage.local.get(["host", "uuid"], function (result) {
-    if (result.uuid == "" || result.uuid == null) {
-      var uuid_val = createUUID();
-      chrome.storage.local.set(
-        {
-          uuid: uuid_val,
-        },
-        function () {
-          console.log("uuid set to " + uuid_val);
-        }
-      );
-    }
+async function setup() {
+  let { host, uuid } = await chrome.storage.local.get(["host", "uuid"]);
 
-    if (result.host == "" || result.host == null) {
-      chrome.storage.local.set(
-        {
-          host: "http://localhost:5000",
-        },
-        function () {
-          console.log("host set to localhost");
-        }
-      );
-    }
-  });
+  if (!uuid) {
+    var uuid_val = createUUID();
+    await chrome.storage.local.set({ uuid: uuid_val });
+
+    console.log("UUID set to " + uuid_val);
+  }
+
+  if (!host) {
+    await chrome.storage.local.set({ host: "http://localhost:5000" });
+
+    console.log("Host set to localhost");
+  }
 }
 
 function storeResponse(urlkey, response) {
@@ -124,12 +114,13 @@ async function setHost(host) {
   console.log("Setting host to: " + host);
 
   await chrome.storage.local.set({ host: host });
-  
+
   console.log("Server host set to: " + host);
 }
 
 async function getUuid() {
-  return (await chrome.storage.local.get(["uuid"])).uuid;
+  let { uuid } = await chrome.storage.local.get(["uuid"]);
+  return uuid;
 }
 
 export {

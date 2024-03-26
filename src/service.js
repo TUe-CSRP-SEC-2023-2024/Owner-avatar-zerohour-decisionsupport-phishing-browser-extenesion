@@ -1,8 +1,8 @@
 import { setup, storeResponse, getUuid } from "./storage.js";
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   console.log("Installed");
-  setup();
+  await setup();
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
