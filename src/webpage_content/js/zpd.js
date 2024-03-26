@@ -8,9 +8,12 @@ const INCONCLUSIVE = "INCONCLUSIVE";
 const LEGITIMATE = "LEGITIMATE";
 const PHISHING = "PHISHING";
 
+/**
+ * The list of active notification methods.
+ */
 let notification_methods = [];
 notification_methods.push(new PasswordInputWarning());
-notification_methods.push(new PhishingPopup());
+notification_methods.push(new PhishingAlert());
 
 /**
  * Runs a phishing check on the current page, if it's a login page.
@@ -57,9 +60,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     notification_methods.forEach(notification_method => 
         notification_method.onStateChange(prev_checkstatus, checkstatus));
   }
-
-  // TODO: use as possible notification method:
-  // alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
 });
 
 // Do a phishing check when the page is loaded, or when switching to the page
