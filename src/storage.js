@@ -21,17 +21,14 @@ async function setup() {
 async function storeResponse(urlkey, response) {
   let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
-  let found = false;
-  for (let i = 0; i < urlCacheIds.length; i++) {
-    if (urlCacheIds[i].urlId == urlkey) {
-      urlCacheIds[i].result = response;
-      urlCacheIds[i].ack = false;
-
-      found = true;
-    }
-  }
-
-  if (!found) {
+  // Finds cache entry associated with urlkey
+  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == urlkey);
+  if (i != -1) {
+    // Found cache entry, update it
+    urlCacheIds[i].result = response;
+    urlCacheIds[i].ack = false;
+  } else {
+    // Didn't find cache entry, add it
     urlCacheIds.push({
       urlId: urlkey,
       result: response,
@@ -43,29 +40,14 @@ async function storeResponse(urlkey, response) {
 }
 
 // NOT USED
-function deleteResponse(urlkey) {
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (result.urlCacheIds[i].urlId == urlkey) {
-          // delete entry
-          result.urlCacheIds.splice(i, 1);
+async function deleteResponse(urlkey) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
-          // put array back
-          chrome.storage.local.set(
-            {
-              urlCacheIds: result.urlCacheIds,
-            },
-            function (result) {}
-          );
-          break;
-        }
-      }
-    }
-  );
+  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == urlkey);
+  if (i != -1) {
+    urlCacheIds.splice(i, 1);
+    await chrome.storage.local.set({ urlCacheIds: urlCacheIds });
+  }
 }
 
 // Delete all urlCacheIds content in local storage
