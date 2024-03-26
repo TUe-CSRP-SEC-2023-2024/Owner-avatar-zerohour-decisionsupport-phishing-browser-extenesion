@@ -46,3 +46,14 @@ function parseHTML(html, id = null) {
 function getPasswordFields() {
   return document.querySelectorAll("input[type=password]");
 }
+
+/**
+ * Checks if the document is a login page.
+ * 
+ * @returns a boolean.
+ */
+function isLoginPage() {
+  let password_fields = getPasswordFields();
+
+  return password_fields.length !== 0;
+}

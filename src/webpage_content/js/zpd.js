@@ -1,5 +1,3 @@
-const { hostname } = new URL(location.href);
-
 /**
  * The status of the current check.
  */
@@ -10,28 +8,9 @@ const INCONCLUSIVE = "INCONCLUSIVE";
 const LEGITIMATE = "LEGITIMATE";
 const PHISHING = "PHISHING";
 
-window.addEventListener("focus", function () {
-  checkPhishing();
-});
-
-// Wait for the page to have loaded before trying to count the password fields
-window.addEventListener("load", function () {
-  checkPhishing();
-});
-
-/**
- * Checks if the document is a login page.
- * 
- * @returns a boolean.
- */
-function isLoginPage() {
-  let password_fields = getPasswordFields();
-
-  return password_fields.length !== 0;
-}
-
-let password_warns = new PasswordInputWarning();
-let phishing_popup = new PhishingPopup();
+let notification_methods = [];
+notification_methods.push(new PasswordInputWarning());
+notification_methods.push(new PhishingPopup());
 
 /**
  * Runs a phishing check on the current page, if it's a login page.
@@ -43,9 +22,8 @@ function checkPhishing() {
 
   checkstatus = PROCESSING;
 
-  password_warns.setup();
-  phishing_popup.setup();
-
+  notification_methods.forEach(notification_method => notification_method.setup());
+  
   // Send message to service to start phishing check
   chrome.runtime.sendMessage({
     type: "CHECK_PHISHING",
@@ -61,22 +39,29 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return;
   }
 
+  // First, check if we're still on the same domain
   let original_hostname = new URL(request.url).hostname;
   let current_hostname = new URL(location.href).hostname;
   if (original_hostname !== current_hostname) {
     return;
   }
 
+  // Then, check what the status has changed to and what it was
   let prev_checkstatus = checkstatus;
   if (request.result !== "QUEUED") {
     checkstatus = request.result;
   }
-  
+
+  // .. and if the status changed, notify the notification methods
   if (checkstatus != prev_checkstatus) {
-    password_warns.onStateChange(prev_checkstatus, checkstatus);
-    phishing_popup.onStateChange(prev_checkstatus, checkstatus);
+    notification_methods.forEach(notification_method => 
+        notification_method.onStateChange(prev_checkstatus, checkstatus));
   }
 
   // TODO: use as possible notification method:
   // alert("The anti-phishing browser extension has detected the page with URL: " + request.url + " as a phishing website. We recommend you proceed with exterme caution!");
 });
+
+// Do a phishing check when the page is loaded, or when switching to the page
+window.addEventListener("focus", checkPhishing);
+window.addEventListener("load", checkPhishing);
