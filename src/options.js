@@ -1,34 +1,29 @@
-const tabs = ["settings", "connection", "notifications", "about"];
+const tabs = new Map();
+tabs.set("settings", "Settings");
+tabs.set("connection", "Connection");
+tabs.set("detection", "Detection");
+tabs.set("notifications", "Notifications");
+tabs.set("about", "About");
 
-chrome.tabs.query(
-  {
-    active: true,
-    lastFocusedWindow: true,
-  },
-  (tabs) => {
-    let settingsButton = document.getElementById("settings-button");
-    let connectionButton = document.getElementById("connection-button");
-    let notificationsButton = document.getElementById("notifications-button");
-    let aboutButton = document.getElementById("about-button");
+let headerContent = document.getElementById("header-content");
+let buttons = [];
 
-    settingsButton.addEventListener("click", () => {
-      loadContent("settings");
-    });
-    connectionButton.addEventListener("click", () => {
-      loadContent("connection");
-    });
-    notificationsButton.addEventListener("click", () => {
-      loadContent("notifications");
-    });
-    aboutButton.addEventListener("click", () => {
-      loadContent("about");
-    });
-  }
-);
+tabs.forEach((name, id) => {
+  let button = document.createElement("div");
+  button.id = id + "-button";
+  button.className = "header-button";
+  button.innerHTML = name;
+  button.addEventListener("click", () => {
+    loadContent(id);
+  });
+
+  headerContent.appendChild(button);
+  buttons.push(button);
+});
 
 // Loads the content of the tab based on the name of the HTML file
 function loadContent(tab) {
-  if (!tabs.includes(tab)) {
+  if (!tabs.has(tab)) {
     return;
   }
 
@@ -46,7 +41,6 @@ function loadContent(tab) {
 
   fetch(tab + ".html", { method: "GET" })
     .then((res) => {
-      console.log(res);
       return res.text();
     })
     .then((data) => {
@@ -65,7 +59,7 @@ function loadContent(tab) {
 // This function loads the content based on the hash(#) value in the URL
 function loadContentFromHash() {
   var tab = window.location.hash.substring(1);
-  if (tabs.includes(tab)) {
+  if (tabs.has(tab)) {
     loadContent(tab);
   } else {
     loadContent("settings"); // main tab
