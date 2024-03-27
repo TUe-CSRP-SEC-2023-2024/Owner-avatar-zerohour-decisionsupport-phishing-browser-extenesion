@@ -10,6 +10,7 @@ let connectionStatusCircle = document.getElementById("connection-status-circle")
 loadLocalSettings();
 
 saveButton.addEventListener("click", async () => {
+  // Construct host URL from input
   let http = httpsCheckbox.checked ? "https://" : "http://";
   let host = http + serverIPField.value + ":" + serverPortField.value;
 
@@ -17,6 +18,9 @@ saveButton.addEventListener("click", async () => {
   await tryConnection();
 });
 
+/**
+ * Loads host settings onto the page.
+ */
 async function loadLocalSettings() {
   const host = await getHost();
   const url = new URL(host);
@@ -28,6 +32,9 @@ async function loadLocalSettings() {
   tryConnection();
 }
 
+/**
+ * Attempts making connection to the host, and updates the status appropriately.
+ */
 async function tryConnection() {
   checking();
 
@@ -46,6 +53,9 @@ async function tryConnection() {
   }
 }
 
+/**
+ * Set status to checking.
+ */
 function checking() {
   connectionStatus.classList.remove("connected", "disconnected");
   connectionStatus.innerHTML = "Checking";
@@ -55,6 +65,9 @@ function checking() {
   connectionStatusCircle.classList.add("checking");
 }
 
+/**
+ * Set status to connected.
+ */
 function connected() {
   connectionStatus.classList.remove("checking", "disconnected");
   connectionStatus.innerHTML = "Connected";
@@ -64,6 +77,9 @@ function connected() {
   connectionStatusCircle.classList.add("connected");
 }
 
+/**
+ * Set status to disconnected.
+ */
 function disconnected() {
   connectionStatus.classList.remove("checked", "disconnected");
   connectionStatus.innerHTML = "Disconnected";
