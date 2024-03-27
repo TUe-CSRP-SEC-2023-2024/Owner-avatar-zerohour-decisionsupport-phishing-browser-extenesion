@@ -5,57 +5,45 @@ let serverPortField = document.getElementById("server-port");
 let httpsCheckbox = document.getElementById("https-checkbox");
 let saveButton = document.getElementById("save-button");
 let connectionStatus = document.getElementById("connection-status");
-let connectionStatusCircle = document.getElementById(
-  "connection-status-circle"
-);
+let connectionStatusCircle = document.getElementById("connection-status-circle");
 
 loadLocalSettings();
 
-saveButton.addEventListener("click", () => {
+saveButton.addEventListener("click", async () => {
   let http = httpsCheckbox.checked ? "https://" : "http://";
   let host = http + serverIPField.value + ":" + serverPortField.value;
 
-  setHost(host);
-  tryConnection(host);
+  await setHost(host);
+  await tryConnection();
 });
 
-function loadLocalSettings() {
-  // TODO what is this for?
-  getHost().then(host2 => {
-    httpsCheckbox.checked = host2.includes("https");
-    serverIPField.value = host2.split(":")[1].substring(2);
-    serverPortField.value = host2.split(":")[2];
+async function loadLocalSettings() {
+  const host = await getHost();
+  const url = new URL(host);
 
-    let http = httpsCheckbox.checked ? "https://" : "http://";
-    let host = http + serverIPField.value + ":" + serverPortField.value;
+  httpsCheckbox.checked = url.protocol === 'https';
+  serverIPField.value = url.hostname;
+  serverPortField.value = url.port;
 
-    tryConnection(host);
-  })
+  tryConnection();
 }
 
-function tryConnection(host) {
+async function tryConnection() {
   checking();
 
-  fetch(host)
-    .then((res) => {
-      if (res.ok) {
-        connected();
-      } else {
-        disconnected();
-      }
-    })
-    .catch((error) => {
+  const host = await getHost();
+
+  try {
+    const res = await fetch(host);
+
+    if (res.ok) {
+      connected();
+    } else {
       disconnected();
-    });
-}
-
-function connected() {
-  connectionStatus.classList.remove("checking", "disconnected");
-  connectionStatus.innerHTML = "Connected";
-  connectionStatus.classList.add("connected");
-
-  connectionStatusCircle.classList.remove("checking", "disconnected");
-  connectionStatusCircle.classList.add("connected");
+    }
+  } catch (e) {
+    disconnected();
+  }
 }
 
 function checking() {
@@ -65,6 +53,15 @@ function checking() {
 
   connectionStatusCircle.classList.remove("connected", "disconnected");
   connectionStatusCircle.classList.add("checking");
+}
+
+function connected() {
+  connectionStatus.classList.remove("checking", "disconnected");
+  connectionStatus.innerHTML = "Connected";
+  connectionStatus.classList.add("connected");
+
+  connectionStatusCircle.classList.remove("checking", "disconnected");
+  connectionStatusCircle.classList.add("connected");
 }
 
 function disconnected() {
