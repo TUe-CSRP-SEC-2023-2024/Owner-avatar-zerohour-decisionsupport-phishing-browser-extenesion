@@ -75,11 +75,13 @@ async function setHost(host) {
 }
 
 async function getHost() {
-  return await chrome.storage.local.get("host");
+  let { host } = await chrome.storage.local.get("host");
+  return host;
 }
 
 async function getUuid() {
-  return await chrome.storage.local.get("uuid");
+  let { uuid } = await chrome.storage.local.get("huuid");
+  return uuid;
 }
 
 export {
@@ -89,5 +91,6 @@ export {
   storeResponse,
   deleteResponse,
   setHost,
+  getHost,
   getUuid
 };

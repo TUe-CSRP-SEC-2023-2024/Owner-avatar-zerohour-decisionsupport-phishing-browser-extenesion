@@ -14,6 +14,14 @@ saveButton.addEventListener("click", async () => {
   let http = httpsCheckbox.checked ? "https://" : "http://";
   let host = http + serverIPField.value + ":" + serverPortField.value;
 
+  try {
+    new URL(host);
+  } catch (e) {
+    // TODO alert user of error
+    console.error(e);
+    return;
+  }
+
   await setHost(host);
   await tryConnection();
 });
@@ -23,7 +31,14 @@ saveButton.addEventListener("click", async () => {
  */
 async function loadLocalSettings() {
   const host = await getHost();
-  const url = new URL(host);
+  
+  let url;
+  try {
+    url = new URL(host);
+  } catch (e) {
+    console.error('error making URL from `' + host + '`', e);
+    return;
+  }
 
   httpsCheckbox.checked = url.protocol === 'https';
   serverIPField.value = url.hostname;
