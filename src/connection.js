@@ -1,4 +1,4 @@
-import { setup, setHost } from "./storage.js";
+import { setHost, getHost } from "./storage.js";
 
 let serverIPField = document.getElementById("server-ip");
 let serverPortField = document.getElementById("server-port");
@@ -20,20 +20,20 @@ saveButton.addEventListener("click", () => {
 });
 
 function loadLocalSettings() {
-  chrome.storage.local.get(["host"], function (result) {
-    httpsCheckbox.checked = result.host.includes("https");
-    serverIPField.value = result.host.split(":")[1].substring(2);
-    serverPortField.value = result.host.split(":")[2];
+  // TODO what is this for?
+  getHost().then(host2 => {
+    httpsCheckbox.checked = host2.includes("https");
+    serverIPField.value = host2.split(":")[1].substring(2);
+    serverPortField.value = host2.split(":")[2];
 
     let http = httpsCheckbox.checked ? "https://" : "http://";
     let host = http + serverIPField.value + ":" + serverPortField.value;
 
     tryConnection(host);
-  });
+  })
 }
 
 function tryConnection(host) {
-
   checking();
 
   fetch(host)

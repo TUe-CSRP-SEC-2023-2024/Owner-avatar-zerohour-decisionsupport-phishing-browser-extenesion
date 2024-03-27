@@ -1,5 +1,7 @@
 import { createUUID } from "./uuid.js";
 
+// TODO make all usages await where appropriate
+
 // Function used to setup the local storage of the extension
 async function setup() {
   let { host, uuid } = await chrome.storage.local.get(["host", "uuid"]);
@@ -18,11 +20,11 @@ async function setup() {
   }
 }
 
-async function storeResponse(urlkey, response) {
+async function storeResponse(url, response) {
   let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
   // Finds cache entry associated with urlkey
-  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == urlkey);
+  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == url);
   if (i != -1) {
     // Found cache entry, update it
     urlCacheIds[i].result = response;
@@ -30,7 +32,7 @@ async function storeResponse(urlkey, response) {
   } else {
     // Didn't find cache entry, add it
     urlCacheIds.push({
-      urlId: urlkey,
+      urlId: url,
       result: response,
       ack: false,
     });
@@ -51,27 +53,17 @@ async function deleteResponse(urlkey) {
 }
 
 // Delete all urlCacheIds content in local storage
-function clearUrlStorage() {
-  chrome.storage.local.remove("urlCacheIds", function () {
-    if (chrome.runtime.lastError) {
-      console.error(
-        "Error removing item from storage: " + chrome.runtime.lastError
-      );
-    } else {
-      console.log("urlCacheIds removed successfully.");
-    }
-  });
+async function clearUrlStorage() {
+  await chrome.storage.local.remove("urlCacheIds");
+
+  console.log("urlCacheIds removed successfully.");
 }
 
 // clear all local storage
-function clearAllStorage() {
-  chrome.storage.local.clear(function () {
-    if (chrome.runtime.lastError) {
-      console.error("Error clearing storage: " + chrome.runtime.lastError);
-    } else {
-      console.log("Storage cleared successfully.");
-    }
-  });
+async function clearAllStorage() {
+  await chrome.storage.local.clear();
+
+  console.log("Storage cleared successfully.");
 }
 
 async function setHost(host) {
@@ -82,9 +74,12 @@ async function setHost(host) {
   console.log("Server host set to: " + host);
 }
 
+async function getHost() {
+  return await chrome.storage.local.get("host");
+}
+
 async function getUuid() {
-  let { uuid } = await chrome.storage.local.get(["uuid"]);
-  return uuid;
+  return await chrome.storage.local.get("uuid");
 }
 
 export {
