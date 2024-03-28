@@ -1,3 +1,4 @@
+import { fetchState } from './util';
 import { getHost, getUuid, getResponse, storeResponse, getAllPhishingResponses } from '/storage.js';
 import { fetchApi, updateBadge } from '/util.js';
 
@@ -90,14 +91,9 @@ async function getUpdate() {
     return;
   }
 
-  const res = await fetchApi('POST', '/state', {
-    URL: url,
-    uuid: uuid,
-  });
+  const { result } = await fetchState(url, uuid);
 
-  const jsonResp = res.json()[0];
-
-  if (jsonResp.result !== "PROCESSING") {
+  if (result !== "PROCESSING") {
     progressdiv.style.display = "none";
     updatestatebutton.style.display = "none";
 

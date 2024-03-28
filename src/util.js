@@ -1,5 +1,6 @@
 import { getHost } from "./storage.js";
 
+// TODO incorporate json in this already?
 async function fetchApi(method, endpoint, jsonObj={}) {
   const host = await getHost();
 
@@ -10,6 +11,24 @@ async function fetchApi(method, endpoint, jsonObj={}) {
       "Content-Type": "application/json"
     }
   });
+}
+
+async function fetchState(url, uuid) {
+  const res = await fetchApi('POST', '/state', {
+    URL: url,
+    uuid: uuid,
+  });
+
+  return res.json()[0]; // TODO: is 0 index still required?
+}
+
+async function fetchCheck(url, uuid, title) {
+  const res = await fetchApi('POST', '/check', {
+    URL: url,
+    uuid: uuid,
+    pagetitle: title
+  });
+  return await res.json();
 }
 
 async function updateBadge() {
@@ -23,8 +42,9 @@ async function updateBadge() {
   }
 }
 
-
 export {
   fetchApi,
+  fetchState,
+  fetchCheck,
   updateBadge
 };
