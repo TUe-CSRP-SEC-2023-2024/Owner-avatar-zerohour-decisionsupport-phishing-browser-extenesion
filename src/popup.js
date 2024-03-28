@@ -1,4 +1,5 @@
 import { getHost, getUuid, getResponse, storeResponse, getAllPhishingResponses } from '/storage.js';
+import { fetchApi } from '/util.js';
 
 let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
@@ -75,10 +76,10 @@ async function updateContent() {
 const uuid = await getUuid();
 const host = await getHost();
 
+// Update status every 5 seconds automatically
 getUpdate();
-
 var intervalId = window.setInterval(getUpdate, 5000);
-
+// Update status when the button for it is clicked
 updatestatebutton.addEventListener("click", getUpdate);
 
 async function getUpdate() {
@@ -89,19 +90,9 @@ async function getUpdate() {
     return;
   }
 
-  var jsonData = JSON.stringify({
+  const res = await fetchApi('POST', '/state', {
     URL: url,
     uuid: uuid,
-  });
-
-  const res = await fetch(host + "/api/v2/state", {
-    method: "POST",
-    body: jsonData,
-    headers: {
-      "Content-Type": "application/json",
-      Connection: "close",
-      "Content-Length": jsonData.length,
-    },
   });
 
   const jsonResp = res.json()[0];
@@ -111,7 +102,7 @@ async function getUpdate() {
     updatestatebutton.style.display = "none";
 
     await updateContent();
-    clearInterval(intervalId);
+    clearInterval(intervalId); // stop repeatedly requesting status update
   }
 }
 
