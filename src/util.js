@@ -12,6 +12,19 @@ async function fetchApi(method, endpoint, jsonObj={}) {
   });
 }
 
+async function updateBadge() {
+  const count = (await getAllPhishingResponses()).length;
+
+  if (count != 0) {
+    chrome.action.setBadgeText({ text: count.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255], });
+  } else {
+    chrome.action.setBadgeText({ text: "", });
+  }
+}
+
+
 export {
-  fetchApi
+  fetchApi,
+  updateBadge
 };

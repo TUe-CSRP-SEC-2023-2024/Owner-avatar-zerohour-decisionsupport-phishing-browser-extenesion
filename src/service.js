@@ -1,11 +1,12 @@
-import { setup, storeResponse, getUuid } from "./storage.js";
+import { setup, storeResponse, getUuid, getHost, getResponse } from "./storage.js";
+import { fetchApi, updateBadge } from "./util.js";
 
 chrome.runtime.onInstalled.addListener(async () => {
   console.log("Installed");
   await setup();
 });
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.type !== "CHECK_PHISHING") {
     return;
   }
@@ -18,43 +19,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return;
   }
 
-  getUuid().then(uuid => {
-    process(sender.tab.id, sender.tab.url, sender.tab.title, "", uuid);
-  });
+  const uuid = await getUuid();
+  process(sender.tab.id, sender.tab.url, sender.tab.title, "", uuid);
 });
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.type !== "WHITELIST_PAGE") {
     return;
   }
 
   let url = request.url;
 
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        // Check if this is the current page
-        if (result.urlCacheIds[i].urlId === url) {
-          // Set it to legitimate and store the result
-          result.urlCacheIds[i].result = "LEGITIMATE";
-
-          chrome.storage.local.set(
-            {
-              urlCacheIds: result.urlCacheIds,
-            },
-            function (result) {}
-          );
-
-          // TODO: update icon & badge
-
-          break;
-        }
-      }
-    }
-  );
+  await storeResponse(url, "LEGITIMATE");
+  setIcon("LEGITIMATE", sender.tab.id);
+  updateBadge();
 })
 
 // Clear local storage on fresh chrome startup
@@ -63,183 +41,94 @@ chrome.runtime.onStartup.addListener(() => {
   updateBadge();
 });
 
-function process(tabid, urlkey, title, screenshot, uuid) {
-  // check if url still needs processing
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (result.urlCacheIds[i].urlId == urlkey) {
-          // check status of tab for the icon change
-          setIcon(result.urlCacheIds[i].result, tabid);
+async function process(tabid, url, title, screenshot, uuid) {
+  const { result } = await getResponse(url);
+  setIcon(result, tabid);
 
-          chrome.tabs.sendMessage(tabid, {
-            type: "CHECK_STATUS",
-            result: result.urlCacheIds[i].result,
-            url: urlkey,
-          });
-          if (
-            result.urlCacheIds[i].result !== "QUEUED" &&
-            result.urlCacheIds[i].result !== "PROCESSING"
-          ) {
-            return;
-          }
-        }
-      }
+  chrome.tabs.sendMessage(tabid, {
+    type: "CHECK_STATUS",
+    result: result,
+    url: url,
+  });
+  if (result !== "QUEUED" && result !== "PROCESSING") {
+    return;
+  }
 
-      setIcon("waiting", tabid);
+  setIcon("waiting", tabid);
 
-      // we do still need processing
-      //console.log("New URL is " + urlkey + " and title is  " + title + " and screenshot data " + screenshot);
+  // we do still need processing
+  //console.log("New URL is " + urlkey + " and title is  " + title + " and screenshot data " + screenshot);
 
-      // add url to cache so we do not process twice before result is known.
-      storeResponse(urlkey, "QUEUED"); // TODO await
+  // add url to cache so we do not process twice before result is known.
+  await storeResponse(url, "QUEUED");
 
-      var jsonData = JSON.stringify({
-        URL: urlkey,
-        pagetitle: title,
-        uuid: uuid,
-      });
+  const host = await getHost();
 
-      console.log(jsonData);
-      chrome.storage.local.get(["host"], function (result) {
-        if (result.host == "" || result.host == null) {
-          console.error("The IP of the host is not set.");
-          return;
-        }
+  if (!host) {
+    console.error("The IP of the host is not set.");
+    return;
+  }
 
-        let host = result.host;
+  try {
+    const res = await fetchApi('POST', '/check', {
+      URL: url,
+      pagetitle: title,
+      uuid: uuid,
+    });
+    const jsonResp = await res.json();
 
-        fetch(host + "/api/v2/check", {
-          method: "POST",
-          body: jsonData,
-          headers: {
-            "Content-Type": "application/json",
-            Connection: "close",
-            "Content-Length": jsonData.length,
-          },
-        })
-          .then((res) => {
-            return res.json();
-          })
-          .then((data) => {
-            let jsonResp = JSON.parse(JSON.stringify(data));
-            storeResponse(urlkey, jsonResp.result); // TODO await
-            updateBadge();
-            console.log(jsonResp.result);
+    await storeResponse(url, jsonResp.result);
+    updateBadge();
+    
+    console.log(jsonResp.result);
 
-            if (jsonResp.result == "PROCESSING") {
-              checkAgain(tabid, urlkey, title, screenshot, uuid, 0);
-            } else {
-              // change icon
-              setIcon(jsonResp.result, tabid);
-              chrome.tabs.sendMessage(tabid, {
-                type: "CHECK_STATUS",
-                result: jsonResp.result,
-                url: jsonResp.url,
-              });
-            }
-          })
-          .catch((err) => {
-            // An error occured. This can be the timeout, or some other error.
-            console.log(err);
-            checkAgain(tabid, urlkey, title, screenshot, uuid, 0);
-          });
+    if (jsonResp.result == "PROCESSING") {
+      await checkAgain(tabid, url, title, screenshot, uuid, 0);
+    } else {
+      setIcon(jsonResp.result, tabid);
+
+      chrome.tabs.sendMessage(tabid, {
+        type: "CHECK_STATUS",
+        result: jsonResp.result,
+        url: jsonResp.url,
       });
     }
-  );
+  } catch (e) {
+    console.error(e);
+    await checkAgain(tabid, url, title, screenshot, uuid, 0);
+  }
 }
 
-function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
-  var jsonData = JSON.stringify({
+async function checkAgain(tabid, urlkey, title, screenshot, uuid, i) {
+  const res = await fetchApi("POST", "/check", {
     URL: urlkey,
     pagetitle: title,
     uuid: uuid,
   });
-
-  console.log(jsonData);
-
-  chrome.storage.local.get(["host"], function (result) {
-    if (result.host == "" || result.host == null) {
-      console.error("The IP of the host is not set.");
-    }
-
-    let host = result.host;
-
-    fetch(host + "/api/v2/check", {
-      method: "POST",
-      body: jsonData,
-      headers: {
-        "Content-Type": "application/json",
-        Connection: "close",
-        "Content-Length": jsonData.length,
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        let jsonResp = JSON.parse(JSON.stringify(data));
-        storeResponse(urlkey, jsonResp.result); // TODO await
-        updateBadge();
-        if (i > 50) {
-          //deleteResponse(urlkey)
-          // stop checking.. takes too long (server down?)
-        } else if (jsonResp.result == "PROCESSING") {
-          setTimeout(
-            () => checkAgain(tabid, urlkey, title, screenshot, uuid, ++i),
-            2000
-          );
-        } else {
-          console.log("late response sent to tab");
-          // change icon
-          setIcon(jsonResp.result, tabid);
-          chrome.tabs.sendMessage(tabid, {
-            type: "CHECK_STATUS",
-            result: jsonResp.result,
-            url: urlkey,
-          });
-        }
-      })
-      .catch((err) => {
-        // An error occured. This can be the timeout, or some other error.
-        console.log(err);
-        return "error";
-      });
-  });
-}
-
-function updateBadge() {
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      var count = 0;
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (
-          result.urlCacheIds[i].result == "PHISHING" &&
-          result.urlCacheIds[i].ack != true
-        ) {
-          count++;
-        }
-      }
-      if (count != 0) {
-        chrome.action.setBadgeText({
-          text: count.toString(),
-        });
-        chrome.action.setBadgeBackgroundColor({
-          color: [255, 0, 0, 255],
-        });
-      } else {
-        chrome.action.setBadgeText({
-          text: "",
-        });
-      }
-    }
-  );
+  const jsonResp = await res.json();
+  
+  await storeResponse(urlkey, jsonResp.result);
+  updateBadge();
+  
+  if (i > 50) {
+    //deleteResponse(urlkey)
+    // stop checking.. takes too long (server down?)
+  } else if (jsonResp.result == "PROCESSING") {
+    setTimeout(
+      () => checkAgain(tabid, urlkey, title, screenshot, uuid, ++i),
+      2000
+    );
+  } else {
+    console.log("late response sent to tab");
+    
+    setIcon(jsonResp.result, tabid);
+    
+    chrome.tabs.sendMessage(tabid, {
+      type: "CHECK_STATUS",
+      result: jsonResp.result,
+      url: urlkey,
+    });
+  }
 }
 
 function setIcon(icon, tabid) {
