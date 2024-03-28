@@ -1,6 +1,5 @@
-import { fetchState } from './util';
 import { getHost, getUuid, getResponse, storeResponse, getAllPhishingResponses } from '/storage.js';
-import { fetchApi, updateBadge } from '/util.js';
+import { fetchApi, fetchState, updateBadge } from '/util.js';
 
 let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 

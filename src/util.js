@@ -1,4 +1,4 @@
-import { getHost } from "./storage.js";
+import { getHost, getAllPhishingResponses } from "./storage.js";
 
 // TODO incorporate json in this already?
 async function fetchApi(method, endpoint, jsonObj={}) {

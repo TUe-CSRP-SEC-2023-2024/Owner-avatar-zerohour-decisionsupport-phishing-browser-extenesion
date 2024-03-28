@@ -38,20 +38,24 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 });
 
 async function process(tabId, url, title, uuid) {
-  const { result } = await getResponse(url);
-  setIcon(tabId, result);
-
-  chrome.tabs.sendMessage(tabId, {
-    type: "CHECK_STATUS",
-    result: result,
-    url: url,
-  });
-  if (result !== "QUEUED" && result !== "PROCESSING") {
-    return;
+  const resp = await getResponse(url);
+  if (resp) {
+    const { result } = resp;
+    setIcon(tabId, result);
+  
+    chrome.tabs.sendMessage(tabId, {
+      type: "CHECK_STATUS",
+      result: result,
+      url: url,
+    });
+    
+    if (result !== "QUEUED" && result !== "PROCESSING") {
+      return;
+    }
+  
+    setIcon(tabId, "waiting");
   }
-
-  setIcon(tabId, "waiting");
-
+  
   // we do still need processing
   //console.log("New URL is " + urlkey + " and title is  " + title);
 
