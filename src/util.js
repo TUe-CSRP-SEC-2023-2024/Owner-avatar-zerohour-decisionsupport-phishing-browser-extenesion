@@ -1,4 +1,4 @@
-import { getHost } from "./storage";
+import { getHost } from "./storage.js";
 
 async function fetchApi(method, endpoint, jsonObj={}) {
   const host = await getHost();
