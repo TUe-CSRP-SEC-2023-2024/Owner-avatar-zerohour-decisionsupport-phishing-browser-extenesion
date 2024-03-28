@@ -20,6 +20,15 @@ async function setup() {
   }
 }
 
+async function getResponse(url) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
+
+  // Finds cache entry associated with urlkey
+  let cacheEntry = urlCacheIds.find(cacheEntry => cacheEntry.urlId == url);
+
+  return cacheEntry;
+}
+
 async function storeResponse(url, response) {
   let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
@@ -52,6 +61,27 @@ async function deleteResponse(urlkey) {
   }
 }
 
+async function getAllPhishingResponses() {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
+
+  return urlCacheIds.filter(cacheEntry => 
+      cacheEntry.ack != true && cacheEntry.status == "phishing");
+}
+
+async function ackPhishingPage(url) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
+
+  // Finds cache entry associated with urlkey
+  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == url);
+
+  if (i == -1) {
+    throw new Error("Could not find phishing entry by URL `" + url + "`");
+  }
+
+  urlCacheIds[i].ack = true;
+  await chrome.storage.local.set({ urlCacheIds: urlCacheIds });
+}
+
 // Delete all urlCacheIds content in local storage
 async function clearUrlStorage() {
   await chrome.storage.local.remove("urlCacheIds");
@@ -80,7 +110,7 @@ async function getHost() {
 }
 
 async function getUuid() {
-  let { uuid } = await chrome.storage.local.get("huuid");
+  let { uuid } = await chrome.storage.local.get("uuid");
   return uuid;
 }
 
@@ -88,8 +118,11 @@ export {
   setup,
   clearUrlStorage,
   clearAllStorage,
+  getResponse,
   storeResponse,
   deleteResponse,
+  getAllPhishingResponses,
+  ackPhishingPage,
   setHost,
   getHost,
   getUuid

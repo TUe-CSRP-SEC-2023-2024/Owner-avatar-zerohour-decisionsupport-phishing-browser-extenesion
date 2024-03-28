@@ -1,281 +1,141 @@
-// TODO: move most stuff to service.js, which is a module and can import storage
+import { getHost, getUuid, getResponse, storeResponse, getAllPhishingResponses } from '/storage.js';
 
-async function main() {
-  let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
-  let url = tabs[0].url;
-  let currUrl = document.getElementById("currUrl");
-  let rating = document.getElementById("rating");
-  let progressdiv = document.getElementById("progressdiv");
-  let updatestatebutton = document.getElementById("get-state-button");
-  let spinner = document.getElementById("spinner");
-  let settingsBtn = document.getElementById("settings-button");
-  // let step1 = document.getElementById("textsearch");
-  // let step2 = document.getElementById("imagesearch");
-  // let step3 = document.getElementById("imagecompare");
-  // let spinner1 = document.getElementById("spinner1");
-  // let spinner2 = document.getElementById("spinner2");
-  // let spinner3 = document.getElementById("spinner3");
-  let phishinglist = document.getElementById("phishinglist");
+let url = tabs[0].url;
+let currentUrl = document.getElementById("currUrl");
+let rating = document.getElementById("rating");
+let progressdiv = document.getElementById("progressdiv");
+let updatestatebutton = document.getElementById("get-state-button");
+let settingsBtn = document.getElementById("settings-button");
+let phishinglist = document.getElementById("phishinglist");
 
-  settingsBtn.addEventListener("click", () => {
-    chrome.runtime.openOptionsPage();
+settingsBtn.addEventListener("click", () => chrome.runtime.openOptionsPage());
+
+// Cut part of the URL if it's too long
+let displayUrl = url;
+if (url.length > 30) {
+  displayUrl = url.slice(0, 30) + "...";
+}
+currentUrl.textContent = displayUrl;
+
+updateContent();
+
+// Get response from cache to display in the pop-up
+async function updateContent() {
+  const cacheEntry = await getResponse(url);
+  if (cacheEntry) {
+    const result = cacheEntry.result;
+
+    if (result == "LEGITIMATE") {
+      rating.textContent = "No, you're safe!";
+    } else if (result == "PHISHING") {
+      rating.textContent = "Yes, be careful!";
+    } else if (result == "QUEUED" || result == "PROCESSING") {
+      rating.textContent = "Waiting for result...";
+      progressdiv.style.display = "block";
+      updatestatebutton.style.display = "inline-block";
+    } else if (result == "INCONCLUSIVE") {
+      rating.textContent = "We're not sure about this one! Be alert!";
+    }
+  } else {
+    rating.textContent = "This page has no password field and will not be checked.";
+  }
+
+  phishinglist.innerHTML = "";
+  (await getAllPhishingResponses()).forEach(cacheEntry => {
+    const phishUrl = cacheEntry.urlId;
+
+    // add to past phishing list
+    document.getElementById("phishingtitle").style.display = "block";
+    var div = document.createElement("div");
+    div.className = "itemwrapper";
+    div.innerHTML =
+      '<div class="sitename"><span>' +
+      phishUrl +
+      '</span></div><div class="actions"><button id="ackbutton-' +
+      i +
+      '" class="actionbutton ackbutton">Dismiss</button><button id="whitelistbutton-' +
+      i +
+      '" class="actionbutton whitelistbutton">Whitelist</button></div>';
+    phishinglist.appendChild(div);
+    document.getElementById("ackbutton-" + i).url =
+      phishUrl;
+    document
+      .getElementById("ackbutton-" + i)
+      .addEventListener("click", ackPhish, false);
+    document.getElementById("whitelistbutton-" + i).url =
+      phishUrl;
+    document
+      .getElementById("whitelistbutton-" + i)
+      .addEventListener("click", whitelistPhish, false);
   });
-
-  let displayUrl = url;
-
-  // Cut part of the URL if it's too long
-  if (url.length > 30) {
-    displayUrl = url.slice(0, 30) + "...";
-  }
-
-  currUrl.textContent = displayUrl;
-
-  updateContent();
-
-  // Get response from cache to display in the pop-up
-  function updateContent() {
-    phishinglist.innerHTML = "";
-    chrome.storage.local.get(
-      {
-        urlCacheIds: [],
-      },
-      function (result) {
-        var i;
-        if (result == null) {
-          return;
-        }
-        console.log(result);
-        var found = false;
-        for (i = 0; i < result.urlCacheIds.length; i++) {
-          if (result.urlCacheIds[i].urlId == url) {
-            if (result.urlCacheIds[i].result == "LEGITIMATE") {
-              rating.textContent = "No, you're safe!";
-              found = true;
-            } else if (result.urlCacheIds[i].result == "PHISHING") {
-              rating.textContent = "Yes, be careful!";
-              found = true;
-            } else if (
-              result.urlCacheIds[i].result == "QUEUED" ||
-              result.urlCacheIds[i].result == "PROCESSING"
-            ) {
-              rating.textContent = "Waiting for result...";
-              progressdiv.style.display = "block";
-              updatestatebutton.style.display = "inline-block";
-              found = true;
-            } else if (result.urlCacheIds[i].result == "INCONCLUSIVE") {
-              rating.textContent = "We're not sure about this one! Be alert!";
-              found = true;
-            }
-          }
-          if (
-            result.urlCacheIds[i].ack != true &&
-            result.urlCacheIds[i].status == "phishing"
-          ) {
-            // add to past phishing list
-            document.getElementById("phishingtitle").style.display = "block";
-            var div = document.createElement("div");
-            div.className = "itemwrapper";
-            div.innerHTML =
-              '<div class="sitename"><span>' +
-              result.urlCacheIds[i].urlId +
-              '</span></div><div class="actions"><button id="ackbutton-' +
-              i +
-              '" class="actionbutton ackbutton">Dismiss</button><button id="whitelistbutton-' +
-              i +
-              '" class="actionbutton whitelistbutton">Whitelist</button></div>';
-            phishinglist.appendChild(div);
-            document.getElementById("ackbutton-" + i).url =
-              result.urlCacheIds[i].urlId;
-            document
-              .getElementById("ackbutton-" + i)
-              .addEventListener("click", ackPhish, false);
-            document.getElementById("whitelistbutton-" + i).url =
-              result.urlCacheIds[i].urlId;
-            document
-              .getElementById("whitelistbutton-" + i)
-              .addEventListener("click", whitelistPhish, false);
-          }
-        }
-        if (!found) {
-          rating.textContent =
-            "This page has no password field and will not be checked.";
-        }
-      }
-    );
-  }
-
-  chrome.storage.local.get(["uuid"], function (result) {
-    getUpdate(result.uuid, url);
-  });
-
-  var intervalId = window.setInterval(function () {
-    chrome.storage.local.get(["uuid"], function (result) {
-      getUpdate(result.uuid, url);
-    });
-  }, 5000);
-
-  updatestatebutton.addEventListener("click", () => {
-    chrome.storage.local.get(["uuid"], function (result) {
-      getUpdate(result.uuid, url);
-    });
-  });
-
-  function getUpdate(uuid, urlkey) {
-    console.log("UUID: " + uuid + " URL: " + urlkey);
-
-    chrome.storage.local
-      .get(["host"], function (result) {
-        if (result.host == "" || result.host == null) {
-          console.error("The IP of the host is not set.");
-          return;
-        }
-
-        var jsonData = JSON.stringify({
-          URL: urlkey,
-          uuid: uuid,
-        });
-
-        fetch(result.host + "/api/v2/state", {
-          method: "POST",
-          body: jsonData,
-          headers: {
-            "Content-Type": "application/json",
-            Connection: "close",
-            "Content-Length": jsonData.length,
-          },
-        })
-          .then((res) => {
-            return res.json();
-          })
-          .then((data) => {
-            let jsonResp = JSON.stringify(data[0]);
-            jsonResp = JSON.parse(jsonResp);
-
-            if (jsonResp.result == "PROCESSING") {
-              // if (jsonResp.state == "textsearch") {
-              //   step1.style.fontWeight = "bold";
-              //   spinner2.style.display = "none";
-              //   spinner3.style.display = "none";
-              // } else if (jsonResp.state == "imagesearch") {
-              //   step1.style.color = "#4CAF50";
-              //   step1.style.fontWeight = "bold";
-              //   step2.style.fontWeight = "bold";
-              //   spinner2.style.display = "inline-block";
-              //   spinner3.style.display = "none";
-              //   spinner1.className = "checkmark";
-              // } else {
-              //   step1.style.color = "#4CAF50";
-              //   step2.style.color = "#4CAF50";
-              //   step1.style.fontWeight = "bold";
-              //   step2.style.fontWeight = "bold";
-              //   step3.style.fontWeight = "bold";
-              //   spinner1.className = "checkmark";
-              //   spinner2.className = "checkmark";
-              //   spinner3.style.display = "inline-block";
-              // }
-            } else {
-              progressdiv.style.display = "none";
-              updatestatebutton.style.display = "none";
-              updateContent();
-              clearInterval(intervalId);
-              // phishinglist.style.height = "255px";
-            }
-          });
-      })
-      .catch((err) => {
-        // An error occured. This can be the timeout, or some other error.
-        console.log(err);
-      });
-  }
-
-  function ackPhish(evt) {
-    urlkey1 = evt.currentTarget.url;
-    chrome.storage.local.get(
-      {
-        urlCacheIds: [],
-      },
-      function (result) {
-        var i;
-        for (i = 0; i < result.urlCacheIds.length; i++) {
-          if (result.urlCacheIds[i].urlId == urlkey1) {
-            result.urlCacheIds[i].ack = true;
-
-            chrome.storage.local.set(
-              {
-                urlCacheIds: result.urlCacheIds,
-              },
-              function (result) {
-                updateContent();
-                updateBadge();
-              }
-            );
-            break;
-          }
-        }
-      }
-    );
-  }
-
-  function whitelistPhish(evt) {
-    urlkey1 = evt.currentTarget.url;
-    chrome.storage.local.get(
-      {
-        urlCacheIds: [],
-      },
-      function (result) {
-        var i;
-        for (i = 0; i < result.urlCacheIds.length; i++) {
-          if (result.urlCacheIds[i].urlId == urlkey1) {
-            result.urlCacheIds[i].result = "LEGITIMATE";
-
-            chrome.storage.local.set(
-              {
-                urlCacheIds: result.urlCacheIds,
-              },
-              function (result) {
-                updateContent();
-                updateBadge();
-              }
-            );
-            break;
-          }
-        }
-      }
-    );
-  }
-
-  function updateBadge() {
-    chrome.storage.local.get(
-      {
-        urlCacheIds: [],
-      },
-      function (result) {
-        var count = 0;
-        for (i = 0; i < result.urlCacheIds.length; i++) {
-          if (
-            result.urlCacheIds[i].result == "PHISHING" &&
-            result.urlCacheIds[i].ack != true
-          ) {
-            count++;
-          }
-        }
-        if (count != 0) {
-          chrome.action.setBadgeText({
-            text: count.toString(),
-          });
-          chrome.action.setBadgeBackgroundColor({
-            color: [255, 0, 0, 255],
-          });
-        } else {
-          chrome.action.setBadgeText({
-            text: "",
-          });
-        }
-      }
-    );
-  }
-
 }
 
-main();
+const uuid = await getUuid();
+const host = await getHost();
+
+getUpdate();
+
+var intervalId = window.setInterval(getUpdate, 5000);
+
+updatestatebutton.addEventListener("click", getUpdate);
+
+async function getUpdate() {
+  console.log("UUID: " + uuid + " URL: " + url);
+
+  if (!host) {
+    console.error("The IP of the host is not set.");
+    return;
+  }
+
+  var jsonData = JSON.stringify({
+    URL: url,
+    uuid: uuid,
+  });
+
+  const res = await fetch(host + "/api/v2/state", {
+    method: "POST",
+    body: jsonData,
+    headers: {
+      "Content-Type": "application/json",
+      Connection: "close",
+      "Content-Length": jsonData.length,
+    },
+  });
+
+  const jsonResp = res.json()[0];
+
+  if (jsonResp.result !== "PROCESSING") {
+    progressdiv.style.display = "none";
+    updatestatebutton.style.display = "none";
+
+    await updateContent();
+    clearInterval(intervalId);
+  }
+}
+
+async function ackPhish(evt) {
+  const phishUrl = evt.currentTarget.url;
+
+  await ackPhishingPage(phishUrl);
+}
+
+async function whitelistPhish(evt) {
+  const phishUrl = evt.currentTarget.url;
+
+  await storeResponse(phishUrl, "LEGITIMATE");
+  updateContent();
+  updateBadge();
+}
+
+async function updateBadge() {
+  const count = (await getAllPhishingResponses()).length;
+
+  if (count != 0) {
+    chrome.action.setBadgeText({ text: count.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255], });
+  } else {
+    chrome.action.setBadgeText({ text: "", });
+  }
+}
