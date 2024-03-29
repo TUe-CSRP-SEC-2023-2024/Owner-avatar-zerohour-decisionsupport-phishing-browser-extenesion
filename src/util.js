@@ -1,6 +1,7 @@
 import { getUuid, getHost, getAllPhishingResponses } from "./storage.js";
 
 // TODO move some functions here to new api.js, that does all contact with API?
+// TODO document it all & give them good names
 
 // TODO incorporate json in this already?
 async function fetchApi(method, endpoint, jsonObj=undefined) {
