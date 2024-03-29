@@ -1,5 +1,5 @@
-import { setup, storeResponse, getUuid, getHost, getResponse, clearUrlStorage } from "./storage.js";
-import { fetchCheck, fetchState, updateBadge } from "./util.js";
+import { setup, storeResponse, getResponse, clearUrlStorage } from "./storage.js";
+import { fetchFinalState, fullCheck, updateBadge } from "./util.js";
 
 // Setup storage when extension is installed
 chrome.runtime.onInstalled.addListener(async () => {
@@ -14,18 +14,17 @@ chrome.runtime.onStartup.addListener(() => {
   updateBadge();
 });
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+// Listener for phishing check requests
+chrome.runtime.onMessage.addListener(async (request, sender) => {
   if (request.type !== "CHECK_PHISHING") {
     return;
   }
 
-  updateBadge();
-
-  const uuid = await getUuid();
-  process(sender.tab.id, sender.tab.url, sender.tab.title, uuid);
+  process(sender.tab.id, sender.tab.url, sender.tab.title);
 });
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+// Listener for page whitelist requests
+chrome.runtime.onMessage.addListener(async (request, sender) => {
   if (request.type !== "WHITELIST_PAGE") {
     return;
   }
@@ -33,93 +32,84 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   let url = request.url;
 
   await storeResponse(url, "LEGITIMATE");
-  setIcon(sender.tab.id, "LEGITIMATE");
-  updateBadge();
+  showState(sender.tab.id, url, "LEGITIMATE");
 });
 
-async function process(tabId, url, title, uuid) {
+/**
+ * Processes a phishing check request for an open webpage.
+ * 
+ * @param {*} tabId the ID of the tab to run the check on.
+ * @param {*} url the URL to check.
+ * @param {*} title the title of the webpage to check.
+ */
+async function process(tabId, url, title) {
+  // Check if result cached
   const resp = await getResponse(url);
   if (resp) {
-    const { result } = resp;
-    setIcon(tabId, result);
-  
-    chrome.tabs.sendMessage(tabId, {
-      type: "CHECK_STATUS",
-      result: result,
-      url: url,
-    });
-    
-    if (result !== "QUEUED" && result !== "PROCESSING") {
-      return;
+    let { result } = resp;
+
+    showState(tabId, url, result);
+
+    // If URL handled by another tab, await result of that
+    if (result === "QUEUED" || result === "PROCESSING") {
+      result = await fetchFinalState(url);
     }
-  
-    setIcon(tabId, "waiting");
-  }
-  
-  // we do still need processing
-  //console.log("New URL is " + urlkey + " and title is  " + title);
 
-  // add url to cache so we do not process twice before result is known.
-  await storeResponse(url, "QUEUED");
+    showState(tabId, url, result);
 
-  const host = await getHost();
-
-  if (!host) {
-    console.error("host not set");
     return;
   }
 
+  // Start processing
+  await storeResponse(url, "QUEUED");
+  showState(tabId, url, "QUEUED");
+
   try {
-    const { result } = await fetchCheck(url, uuid, title);
+    // Query server
+    const result = await fullCheck(url, title);
 
     await storeResponse(url, result);
-    updateBadge();
+    showState(tabId, url, result);
 
-    console.log(result);
+    console.log("Check result from server: " + result);
 
-    if (result == "PROCESSING") {
-      await checkAgain(tabId, url, uuid, title);
-    } else {
-      setIcon(tabId, result);
-
-      chrome.tabs.sendMessage(tabId, {
-        type: "CHECK_STATUS",
-        result: result,
-        url: jsonResp.url,
-      });
-    }
   } catch (e) {
     console.error(e);
-    await checkAgain(tabId, url, uuid, title);
+    // TODO properly handle errors here, relating to cache state
   }
 }
 
-async function checkAgain(tabId, url, uuid, title, i=0) {
-  const { result } = await fetchState(url, uuid);
+/**
+ * Updates the visuals on the webpage indicating which result the tool gave.
+ * 
+ * Includes notification methods, extension icon and extension badge.
+ * 
+ * @param {*} tabId the Chrome tab ID to send the result to.
+ * @param {*} url the URL the result is for.
+ * @param {*} result the result itself.
+ */
+function showState(tabId, url, result) {
+  setIcon(tabId, result);
 
-  if (i > 50) {
-    // TODO: reenable?
-    //deleteResponse(urlkey)
-    // stop checking.. takes too long (server down?)
-  } else if (result == "PROCESSING") {
-    setTimeout(
-      () => checkAgain(tabId, url, title, uuid, i + 1),
-      2000
-    );
-  } else {
-    console.log("late response sent to tab");
-
-    setIcon(tabId, result);
-
-    chrome.tabs.sendMessage(tabId, {
-      type: "CHECK_STATUS",
-      result: result,
-      url: url,
-    });
-  }
+  updateBadge();
+  
+  chrome.tabs.sendMessage(tabId, {
+    type: "CHECK_STATUS",
+    result: result,
+    url: url,
+  });
 }
 
-function setIcon(tabId, icon) {
+/**
+ * Sets the extension icon on the given tab to the given variant.
+ * 
+ * @param {number} tabId the ID of the tab.
+ * @param {string} icon the icon variant to change to.
+ */
+async function setIcon(tabId, icon) {
+  console.log('setting icon of ' + tabId + ' to ' + icon);
+
+  // Convert icon variant to filename
   let filename;
   if (icon === "questionmark" || icon === "INCONCLUSIVE") {
     filename = "questionmark";
@@ -131,9 +121,12 @@ function setIcon(tabId, icon) {
     filename = "waiting";
   } else if (icon === "idle") {
     filename = "idle";
+  } else {
+    throw new Error("unkown icon variant: `" + icon + "`");
   }
 
-  chrome.action.setIcon({
+  // Then change the icon
+  await chrome.action.setIcon({
     path: {
       16: "/images/" + filename + "_16.png",
       32: "/images/" + filename + "_32.png",

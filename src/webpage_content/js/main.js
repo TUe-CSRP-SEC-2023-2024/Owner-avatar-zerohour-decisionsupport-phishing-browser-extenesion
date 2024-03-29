@@ -13,7 +13,7 @@ const PHISHING = "PHISHING";
  */
 let notification_methods = [];
 notification_methods.push(new PasswordInputWarning());
-notification_methods.push(new PhishingAlert());
+notification_methods.push(new PhishingPopup());
 
 /**
  * Runs a phishing check on the current page, if it's a login page.

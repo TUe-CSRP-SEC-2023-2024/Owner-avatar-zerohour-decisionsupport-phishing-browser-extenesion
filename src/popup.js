@@ -1,5 +1,5 @@
 import { getHost, getUuid, getResponse, storeResponse, getAllPhishingResponses } from '/storage.js';
-import { fetchApi, fetchState, updateBadge } from '/util.js';
+import { fetchState, updateBadge } from '/util.js';
 
 let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
@@ -85,14 +85,8 @@ updatestatebutton.addEventListener("click", getUpdate);
 async function getUpdate() {
   console.log("UUID: " + uuid + " URL: " + url);
 
-  if (!host) {
-    console.error("The IP of the host is not set.");
-    return;
-  }
-
-  const { result } = await fetchState(url, uuid);
-
-  if (result !== "PROCESSING") {
+  const state = await fetchState(url, uuid);
+  if (state && state.result !== "PROCESSING") {
     progressdiv.style.display = "none";
     updatestatebutton.style.display = "none";
 

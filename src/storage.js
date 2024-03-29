@@ -1,6 +1,7 @@
 import { createUUID } from "./uuid.js";
 
 // TODO make all usages await where appropriate
+// TODO: rename functions here, most have bad names
 
 // Function used to setup the local storage of the extension
 async function setup() {
