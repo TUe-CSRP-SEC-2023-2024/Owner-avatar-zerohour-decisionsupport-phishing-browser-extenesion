@@ -1,4 +1,4 @@
-import { getUuid, getHost, getAllPhishingResponses } from "./storage.js";
+import { getUuid, getHost, getAllPhishingCacheEntries } from "./storage.js";
 
 // TODO move some functions here to new api.js, that does all contact with API?
 // TODO document it all & give them good names
@@ -74,7 +74,7 @@ function timeout(ms) {
 }
 
 async function updateBadge() {
-  const count = (await getAllPhishingResponses()).length;
+  const count = (await getAllPhishingCacheEntries()).length;
 
   if (count != 0) {
     chrome.action.setBadgeText({ text: count.toString() });

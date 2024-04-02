@@ -1,4 +1,4 @@
-import { clearAllStorage } from "./storage.js";
+import { clearStorage } from "./storage.js";
 
 chrome.tabs.query(
   {
@@ -9,7 +9,7 @@ chrome.tabs.query(
     let deleteDataButton = document.getElementById("delete-data-button");
 
     deleteDataButton.addEventListener("click", () => {
-      clearAllStorage();
+      clearStorage();
       console.log("Data deleted successfully!");
       chrome.runtime.reload();
     });

@@ -1,4 +1,4 @@
-import { getHost, getUuid, getResponse, storeResponse, getAllPhishingResponses } from '/storage.js';
+import { getHost, getUuid, getCacheResult, storeCacheResult, getAllPhishingCacheEntries, acknowledgePhishingPage } from '/storage.js';
 import { fetchState, updateBadge } from '/util.js';
 
 let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -24,10 +24,8 @@ updateContent();
 
 // Get response from cache to display in the pop-up
 async function updateContent() {
-  const cacheEntry = await getResponse(url);
-  if (cacheEntry) {
-    const result = cacheEntry.result;
-
+  const result = await getCacheResult(url);
+  if (result) {
     if (result == "LEGITIMATE") {
       rating.textContent = "No, you're safe!";
     } else if (result == "PHISHING") {
@@ -44,7 +42,7 @@ async function updateContent() {
   }
 
   phishinglist.innerHTML = "";
-  (await getAllPhishingResponses()).forEach(cacheEntry => {
+  (await getAllPhishingCacheEntries()).forEach(cacheEntry => {
     const phishUrl = cacheEntry.urlId;
 
     // add to past phishing list
@@ -98,13 +96,13 @@ async function getUpdate() {
 async function ackPhish(evt) {
   const phishUrl = evt.currentTarget.url;
 
-  await ackPhishingPage(phishUrl);
+  await acknowledgePhishingPage(phishUrl);
 }
 
 async function whitelistPhish(evt) {
   const phishUrl = evt.currentTarget.url;
 
-  await storeResponse(phishUrl, "LEGITIMATE");
+  await storeCacheResult(phishUrl, "LEGITIMATE");
   updateContent();
   updateBadge();
 }

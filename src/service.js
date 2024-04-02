@@ -1,18 +1,8 @@
-import { setup, storeResponse, getResponse, clearUrlStorage } from "./storage.js";
+import { getCacheResult, storeCacheResult } from "./storage.js";
 import { fetchFinalState, fullCheck, updateBadge } from "./util.js";
 
-// Setup storage when extension is installed
-chrome.runtime.onInstalled.addListener(async () => {
-  console.log("Installed");
-
-  await setup();
-});
-
-// Clear URL cache on fresh chrome startup
-chrome.runtime.onStartup.addListener(() => {
-  clearUrlStorage();
-  updateBadge();
-});
+// Update badge when we start chrome for the first time
+chrome.runtime.onStartup.addListener(updateBadge);
 
 // Listener for phishing check requests
 chrome.runtime.onMessage.addListener(async (request, sender) => {
@@ -31,7 +21,7 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
 
   let url = request.url;
 
-  await storeResponse(url, "LEGITIMATE");
+  await storeCacheResult(url, "LEGITIMATE");
   showState(sender.tab.id, url, "LEGITIMATE");
 });
 
@@ -44,10 +34,8 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
  */
 async function process(tabId, url, title) {
   // Check if result cached
-  const resp = await getResponse(url);
-  if (resp) {
-    let { result } = resp;
-
+  let result = await getCacheResult(url);
+  if (result) {
     showState(tabId, url, result);
 
     // If URL handled by another tab, await result of that
@@ -61,14 +49,14 @@ async function process(tabId, url, title) {
   }
 
   // Start processing
-  await storeResponse(url, "QUEUED");
+  await storeCacheResult(url, "QUEUED");
   showState(tabId, url, "QUEUED");
 
   try {
     // Query server
     const result = await fullCheck(url, title);
 
-    await storeResponse(url, result);
+    await storeCacheResult(url, result);
     showState(tabId, url, result);
 
     console.log("Check result from server: " + result);
