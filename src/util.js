@@ -2,6 +2,7 @@ import { getUuid, getHost, getAllPhishingCacheEntries } from "./storage.js";
 
 // TODO move some functions here to new api.js, that does all contact with API?
 // TODO remove UUID from everywhere
+// TODO deal with 404 from state endpoint
 
 /**
  * Makes a call to the API.
