@@ -4,8 +4,7 @@ import { fetchApi } from './util.js';
 let detectionMethodSelect = document.getElementById("detection-method-select");
 let decisionStrategySelect = document.getElementById("decision-strategy-select");
 
-let res = await fetchApi("GET", "/capabilities");
-let data = await res.json();
+const data = await fetchApi("/capabilities");
 
 data.detection_methods.forEach(method => {
   let option = document.createElement("option");

@@ -60,7 +60,6 @@ async function process(tabId, url, title) {
     showState(tabId, url, result);
 
     console.log("Check result from server: " + result);
-
   } catch (e) {
     console.error(e);
     // TODO properly handle errors here, relating to cache state

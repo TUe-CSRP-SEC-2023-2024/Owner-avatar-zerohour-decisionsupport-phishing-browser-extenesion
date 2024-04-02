@@ -3,8 +3,7 @@ import { getUuid, getHost, getAllPhishingCacheEntries } from "./storage.js";
 // TODO move some functions here to new api.js, that does all contact with API?
 // TODO document it all & give them good names
 
-// TODO incorporate json in this already?
-async function fetchApi(method, endpoint, jsonObj=undefined) {
+async function fetchApi(endpoint, method='GET', jsonObj=undefined) {
   const host = await getHost();
 
   let headers = {};
@@ -15,29 +14,30 @@ async function fetchApi(method, endpoint, jsonObj=undefined) {
     headers["Content-Type"] = "application/json";
   }
 
-  return await fetch(host + "/api/v2" + endpoint, {
+  const res = await fetch(host + "/api/v2" + endpoint, {
     method: method,
     body: body,
     headers: headers
   });
+
+  return await res.json();
 }
 
 async function fetchState(url, uuid) {
-  const res = await fetchApi('POST', '/state', {
+  const json = await fetchApi('/state', 'POST', {
     URL: url,
     uuid: uuid,
   });
 
-  return res.json()[0]; // TODO: is 0 index still required?
+  return json[0];
 }
 
 async function fetchCheck(url, uuid, title) {
-  const res = await fetchApi('POST', '/check', {
+  return await fetchApi('/check', 'POST', {
     URL: url,
     uuid: uuid,
     pagetitle: title
   });
-  return await res.json();
 }
 
 async function fullCheck(url, title) {
