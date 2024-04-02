@@ -1,5 +1,5 @@
 import { getHost, getUuid, getCacheResult, storeCacheResult, getAllPhishingCacheEntries, acknowledgePhishingPage } from '/storage.js';
-import { fetchState, updateBadge } from '/util.js';
+import { getCheckState, updateBadge } from '/util.js';
 
 let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
@@ -83,7 +83,7 @@ updatestatebutton.addEventListener("click", getUpdate);
 async function getUpdate() {
   console.log("UUID: " + uuid + " URL: " + url);
 
-  const state = await fetchState(url, uuid);
+  const state = await getCheckState(url, uuid);
   if (state && state.result !== "PROCESSING") {
     progressdiv.style.display = "none";
     updatestatebutton.style.display = "none";

@@ -1,5 +1,5 @@
 import { getCacheResult, storeCacheResult } from "./storage.js";
-import { fetchFinalState, fullCheck, updateBadge } from "./util.js";
+import { getDefinitiveState, checkUntilDone, updateBadge } from "./util.js";
 
 // Update badge when we start chrome for the first time
 chrome.runtime.onStartup.addListener(updateBadge);
@@ -40,7 +40,7 @@ async function process(tabId, url, title) {
 
     // If URL handled by another tab, await result of that
     if (result === "QUEUED" || result === "PROCESSING") {
-      result = await fetchFinalState(url);
+      result = await getDefinitiveState(url);
     }
 
     showState(tabId, url, result);
@@ -54,7 +54,7 @@ async function process(tabId, url, title) {
 
   try {
     // Query server
-    const result = await fullCheck(url, title);
+    const result = await checkUntilDone(url, title);
 
     await storeCacheResult(url, result);
     showState(tabId, url, result);

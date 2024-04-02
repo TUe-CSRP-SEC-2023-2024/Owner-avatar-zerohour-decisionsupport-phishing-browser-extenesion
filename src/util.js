@@ -1,8 +1,16 @@
 import { getUuid, getHost, getAllPhishingCacheEntries } from "./storage.js";
 
 // TODO move some functions here to new api.js, that does all contact with API?
-// TODO document it all & give them good names
+// TODO remove UUID from everywhere
 
+/**
+ * Makes a call to the API.
+ * 
+ * @param {string} endpoint the endpoint to use.
+ * @param {string} method the method (typically GET or POST, default GET).
+ * @param {*} jsonObj the data object to send.
+ * @returns 
+ */
 async function fetchApi(endpoint, method='GET', jsonObj=undefined) {
   const host = await getHost();
 
@@ -23,7 +31,14 @@ async function fetchApi(endpoint, method='GET', jsonObj=undefined) {
   return await res.json();
 }
 
-async function fetchState(url, uuid) {
+/**
+ * Fetches the state of a certain check that is in progress or has finished.
+ * 
+ * @param {string} url the URL.
+ * @param {string} uuid the UUID.
+ * @returns 
+ */
+async function getCheckState(url, uuid) {
   const json = await fetchApi('/state', 'POST', {
     URL: url,
     uuid: uuid,
@@ -32,7 +47,15 @@ async function fetchState(url, uuid) {
   return json[0];
 }
 
-async function fetchCheck(url, uuid, title) {
+/**
+ * Requests a check to be ran.
+ * 
+ * @param {string} url the URL to check.
+ * @param {string} uuid the UUID.
+ * @param {string} title the title of the page.
+ * @returns 
+ */
+async function requestCheck(url, uuid, title) {
   return await fetchApi('/check', 'POST', {
     URL: url,
     uuid: uuid,
@@ -40,21 +63,35 @@ async function fetchCheck(url, uuid, title) {
   });
 }
 
-async function fullCheck(url, title) {
+/**
+ * Requests a check, and only returns when we have a definitive result.
+ * 
+ * @param {string} url the URL.
+ * @param {string} title the page title.
+ * @returns 
+ */
+async function checkUntilDone(url, title) {
   console.log('Initiating full check on ' + url);
 
   const uuid = await getUuid();
 
-  let { result } = await fetchCheck(url, uuid, title);
+  let { result } = await requestCheck(url, uuid, title);
 
   if (result === "PROCESSING") {
-    result = await fetchFinalState(url, uuid);
+    result = await getDefinitiveState(url, uuid);
   }
 
   return result;
 }
 
-async function fetchFinalState(url) {
+/**
+ * Gets the definitive state of a previously requested check,
+ * possibly waiting until it is available.
+ * 
+ * @param {string} url the URL to get the state for.
+ * @returns the state.
+ */
+async function getDefinitiveState(url) {
   console.log('Fetching final state on ' + url);
 
   const uuid = await getUuid();
@@ -62,17 +99,28 @@ async function fetchFinalState(url) {
   while (true) {
     await timeout(2000);
 
-    const res = await fetchState(url, uuid);
+    const res = await getCheckState(url, uuid);
     if (res.result !== "PROCESSING") {
       return res.result;
     }
   }
 }
 
+/**
+ * Returns a promise that finishes after the given amount of milliseconds have passed.
+ * 
+ * When awaited, this acts as an async sleep instruction.
+ * 
+ * @param {number} ms the amount of milliseconds.
+ * @returns 
+ */
 function timeout(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Updates the badge of the extension with the amount of phishing cache entries.
+ */
 async function updateBadge() {
   const count = (await getAllPhishingCacheEntries()).length;
 
@@ -86,9 +134,9 @@ async function updateBadge() {
 
 export {
   fetchApi,
-  fetchState,
-  fetchCheck,
-  fullCheck,
-  fetchFinalState,
+  getCheckState,
+  requestCheck,
+  checkUntilDone,
+  getDefinitiveState,
   updateBadge
 };
