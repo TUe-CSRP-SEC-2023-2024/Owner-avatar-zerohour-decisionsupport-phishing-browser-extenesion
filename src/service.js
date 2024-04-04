@@ -48,9 +48,11 @@ async function process(tabId, url, title) {
     return;
   }
 
+  // TODO if the server is changed to instantly return an HTTP response on the check endpoint,
+  //        we should add an intermediate QUEUED phase
   // Start processing
-  await storeCacheResult(url, "QUEUED");
-  showState(tabId, url, "QUEUED");
+  await storeCacheResult(url, "PROCESSING");
+  showState(tabId, url, "PROCESSING");
 
   try {
     // Query server
