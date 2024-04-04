@@ -21,6 +21,8 @@ class NotificationMethod {
   /**
    * Called when the phishing detection check status changes.
    * 
+   * Also called initially with oldState `undefined` and newState `PROCESSING`.
+   * 
    * @param {string} oldState the previous state of the phishing check, see `checkstatus`.
    * @param {string} newState the new and current state of the phishing check, see `checkstatus`.
    */

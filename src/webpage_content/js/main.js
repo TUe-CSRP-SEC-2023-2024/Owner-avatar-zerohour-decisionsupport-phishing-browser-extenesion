@@ -12,8 +12,8 @@ const PHISHING = "PHISHING";
  * The list of active notification methods.
  */
 let notification_methods = [];
-notification_methods.push(new PasswordInputWarning());
-notification_methods.push(new PhishingAlert());
+notification_methods.push(new InputBlock());
+notification_methods.push(new PhishingPopup());
 
 /**
  * Runs a phishing check on the current page, if it's a login page.
@@ -25,7 +25,9 @@ function checkPhishing() {
 
   checkstatus = PROCESSING;
 
+  // Setup notification methods and initialize them with PROCESSING state
   notification_methods.forEach(notification_method => notification_method.setup());
+  notification_methods.forEach(notification_method => notification_method.onStateChange(undefined, PROCESSING));
   
   // Send message to service to start phishing check
   chrome.runtime.sendMessage({
