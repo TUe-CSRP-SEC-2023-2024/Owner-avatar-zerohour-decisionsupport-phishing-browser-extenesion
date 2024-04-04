@@ -41,6 +41,11 @@ class PasswordInputWarning extends NotificationMethod {
   display() {
     fetchHTML('password_input_warning.html').then(html => {
       this.password_fields.forEach(password_field => {
+        // TODO find better way to only display on actually visible elements (e.g. stackoverflow with hidden password field bypasses this)
+        // if (!password_field.checkVisibility()) {
+        //   return;
+        // }
+
         let elem = parseHTML(html);
         elem.classList.add('tooltipphish');
         document.body.appendChild(elem);
