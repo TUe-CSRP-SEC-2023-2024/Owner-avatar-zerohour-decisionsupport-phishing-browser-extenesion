@@ -1,142 +1,190 @@
 import { createUUID } from "./uuid.js";
 
-// Function used to setup the local storage of the extension
-function setup() {
-  chrome.storage.local.get(["host", "uuid"], function (result) {
-    if (result.uuid == "" || result.uuid == null) {
-      var uuid_val = createUUID();
-      chrome.storage.local.set(
-        {
-          uuid: uuid_val,
-        },
-        function () {
-          console.log("uuid set to " + uuid_val);
-        }
-      );
-    }
+/**
+ * Gets the cached phishing check entry for a URL.
+ * 
+ * @param {string} url the URL to get the result for.
+ * @returns the cache entry, or `undefined` if it wasn't found in cache.
+ */
+async function getCacheEntry(url) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
-    if (result.host == "" || result.host == null) {
-      chrome.storage.local.set(
-        {
-          host: "http://localhost:5000",
-        },
-        function () {
-          console.log("host set to localhost");
-        }
-      );
-    }
-  });
+  // Finds cache entry associated with urlkey
+  let cacheEntry = urlCacheIds.find(cacheEntry => cacheEntry.urlId == url);
+
+  return cacheEntry;
 }
 
-function storeResponse(urlkey, response) {
-  // Store the url and response in cache
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      var found = false;
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (result.urlCacheIds[i].urlId == urlkey) {
-          result.urlCacheIds[i].result = response;
-          result.urlCacheIds[i].ack = false;
+/**
+ * Gets the cached phishing check result for a URL.
+ * 
+ * @param {string} url the URL to get the result for.
+ * @returns the result, or `undefined` if it wasn't found in cache.
+ */
+async function getCacheResult(url) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
-          chrome.storage.local.set(
-            {
-              urlCacheIds: result.urlCacheIds,
-            },
-            function (result) {}
-          );
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        var urlCacheIds = result.urlCacheIds;
-        urlCacheIds.push({
-          urlId: urlkey,
-          result: response,
-          ack: false,
-        });
+  // Finds cache entry associated with urlkey
+  let cacheEntry = urlCacheIds.find(cacheEntry => cacheEntry.urlId == url);
 
-        chrome.storage.local.set(
-          {
-            urlCacheIds: urlCacheIds,
-          },
-          function (result) {}
-        );
-      }
-    }
-  );
+  if (cacheEntry) {
+    return cacheEntry.result;
+  }
+
+  return undefined;
 }
 
-// NOT USED
-function deleteResponse(urlkey) {
-  chrome.storage.local.get(
-    {
-      urlCacheIds: [],
-    },
-    function (result) {
-      for (let i = 0; i < result.urlCacheIds.length; i++) {
-        if (result.urlCacheIds[i].urlId == urlkey) {
-          // delete entry
-          result.urlCacheIds.splice(i, 1);
+/**
+ * Stores the given cache entry in cache.
+ * 
+ * @param {string} url the URL to store it under.
+ * @param {*} result the cache entry to store.
+ */
+async function storeCacheResult(url, result) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
 
-          // put array back
-          chrome.storage.local.set(
-            {
-              urlCacheIds: result.urlCacheIds,
-            },
-            function (result) {}
-          );
-          break;
-        }
-      }
-    }
-  );
+  // Finds cache entry associated with urlkey
+  let i = urlCacheIds.findIndex(iCacheEntry => iCacheEntry.urlId == url);
+  if (i != -1) {
+    // Found cache entry, update it
+    urlCacheIds[i].result = result;
+    urlCacheIds[i].ack = false;
+  } else {
+    // Didn't find cache entry, add it
+    urlCacheIds.push({
+      urlId: url,
+      result: result,
+      ack: false,
+    });
+  }
+
+  await chrome.storage.local.set({ urlCacheIds: urlCacheIds });
 }
 
-// Delete all urlCacheIds content in local storage
-function clearUrlStorage() {
-  chrome.storage.local.remove("urlCacheIds", function () {
-    if (chrome.runtime.lastError) {
-      console.error(
-        "Error removing item from storage: " + chrome.runtime.lastError
-      );
-    } else {
-      console.log("urlCacheIds removed successfully.");
-    }
-  });
+/**
+ * Deletes the cache entry under the given URL.
+ * 
+ * @param {string} url the URL to delete the cache entry for.
+ */
+async function deleteCacheEntry(url) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
+
+  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == url);
+  if (i != -1) {
+    urlCacheIds.splice(i, 1);
+    await chrome.storage.local.set({ urlCacheIds: urlCacheIds });
+  }
 }
 
-// clear all local storage
-function clearAllStorage() {
-  chrome.storage.local.clear(function () {
-    if (chrome.runtime.lastError) {
-      console.error("Error clearing storage: " + chrome.runtime.lastError);
-    } else {
-      console.log("Storage cleared successfully.");
-    }
-  });
+/**
+ * Returns all cache entries with result phishing.
+ * 
+ * @returns the phishing cache entries.
+ */
+async function getAllPhishingCacheEntries() {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
+
+  return urlCacheIds.filter(cacheEntry => 
+      cacheEntry.ack != true && cacheEntry.status == "phishing");
 }
 
-function setHost(host) {
+/**
+ * Acknowledge the existence of the phishing page with the given URL.
+ * 
+ * @param {string} url the URL.
+ */
+async function acknowledgePhishingPage(url) {
+  let { urlCacheIds } = await chrome.storage.local.get({ urlCacheIds: [] });
+
+  // Finds cache entry associated with urlkey
+  let i = urlCacheIds.findIndex(cacheEntry => cacheEntry.urlId == url);
+
+  if (i == -1) {
+    throw new Error("Could not find phishing entry by URL `" + url + "`");
+  }
+
+  urlCacheIds[i].ack = true;
+  await chrome.storage.local.set({ urlCacheIds: urlCacheIds });
+}
+
+/**
+ * Clears all cache.
+ */
+async function clearCache() {
+  await chrome.storage.local.remove("urlCacheIds");
+
+  console.log("urlCacheIds removed successfully.");
+}
+
+/**
+ * Clears all storage, including cache and settings.
+ */
+async function clearStorage() {
+  await chrome.storage.local.clear();
+
+  console.log("Storage cleared successfully.");
+}
+
+/**
+ * Sets the host (server connection URL).
+ * 
+ * @param {string} host the host to switch to.
+ */
+async function setHost(host) {
   console.log("Setting host to: " + host);
-  chrome.storage.local.set(
-    {
-      host: host,
-    },
-    function () {
-      console.log("Server host set to: " + host);
-    }
-  );
+
+  await chrome.storage.local.set({ host: host });
+
+  console.log("Server host set to: " + host);
+}
+
+/**
+ * Gets the host (server connection URL).
+ * 
+ * @returns the host.
+ */
+async function getHost() {
+  let { host } = await chrome.storage.local.get("host");
+
+  if (!host) {
+    host = "http://localhost:5000";
+    
+    await setHost(host);
+  }
+
+  return host;
+}
+
+/**
+ * Gets the UUID of this client.
+ * 
+ * @returns the UUID.
+ */
+async function getUuid() {
+  let { uuid } = await chrome.storage.local.get("uuid");
+
+  if (!uuid) {
+    var uuid_val = createUUID();
+    await chrome.storage.local.set({ uuid: uuid_val });
+
+    console.log("UUID set to " + uuid_val);
+
+    return uuid_val;
+  }
+
+  return uuid;
 }
 
 export {
-  setup,
-  clearUrlStorage,
-  clearAllStorage,
-  storeResponse,
-  deleteResponse,
+  getCacheEntry,
+  getCacheResult,
+  storeCacheResult,
+  deleteCacheEntry,
+  getAllPhishingCacheEntries,
+  acknowledgePhishingPage,
+  clearCache,
+  clearStorage,
   setHost,
+  getHost,
+  getUuid
 };

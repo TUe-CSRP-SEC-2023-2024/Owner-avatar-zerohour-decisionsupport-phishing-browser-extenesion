@@ -1,63 +1,76 @@
-import { setup, setHost } from "./storage.js";
+import { setHost, getHost } from "./storage.js";
 
 let serverIPField = document.getElementById("server-ip");
 let serverPortField = document.getElementById("server-port");
 let httpsCheckbox = document.getElementById("https-checkbox");
 let saveButton = document.getElementById("save-button");
 let connectionStatus = document.getElementById("connection-status");
-let connectionStatusCircle = document.getElementById(
-  "connection-status-circle"
-);
+let connectionStatusCircle = document.getElementById("connection-status-circle");
 
 loadLocalSettings();
 
-saveButton.addEventListener("click", () => {
+saveButton.addEventListener("click", async () => {
+  // Construct host URL from input
   let http = httpsCheckbox.checked ? "https://" : "http://";
   let host = http + serverIPField.value + ":" + serverPortField.value;
 
-  setHost(host);
-  tryConnection(host);
+  try {
+    new URL(host);
+  } catch (e) {
+    // TODO alert user of error
+    console.error(e);
+    return;
+  }
+
+  await setHost(host);
+  await tryConnection();
 });
 
-function loadLocalSettings() {
-  chrome.storage.local.get(["host"], function (result) {
-    httpsCheckbox.checked = result.host.includes("https");
-    serverIPField.value = result.host.split(":")[1].substring(2);
-    serverPortField.value = result.host.split(":")[2];
+/**
+ * Loads host settings onto the page.
+ */
+async function loadLocalSettings() {
+  const host = await getHost();
+  
+  let url;
+  try {
+    url = new URL(host);
+  } catch (e) {
+    console.error('error making URL from `' + host + '`', e);
+    return;
+  }
 
-    let http = httpsCheckbox.checked ? "https://" : "http://";
-    let host = http + serverIPField.value + ":" + serverPortField.value;
+  httpsCheckbox.checked = url.protocol === 'https';
+  serverIPField.value = url.hostname;
+  serverPortField.value = url.port;
 
-    tryConnection(host);
-  });
+  tryConnection();
 }
 
-function tryConnection(host) {
-
+/**
+ * Attempts making connection to the host, and updates the status appropriately.
+ */
+async function tryConnection() {
   checking();
 
-  fetch(host)
-    .then((res) => {
-      if (res.ok) {
-        connected();
-      } else {
-        disconnected();
-      }
-    })
-    .catch((error) => {
+  const host = await getHost();
+
+  try {
+    const res = await fetch(host);
+
+    if (res.ok) {
+      connected();
+    } else {
       disconnected();
-    });
+    }
+  } catch (e) {
+    disconnected();
+  }
 }
 
-function connected() {
-  connectionStatus.classList.remove("checking", "disconnected");
-  connectionStatus.innerHTML = "Connected";
-  connectionStatus.classList.add("connected");
-
-  connectionStatusCircle.classList.remove("checking", "disconnected");
-  connectionStatusCircle.classList.add("connected");
-}
-
+/**
+ * Set status to checking.
+ */
 function checking() {
   connectionStatus.classList.remove("connected", "disconnected");
   connectionStatus.innerHTML = "Checking";
@@ -67,6 +80,21 @@ function checking() {
   connectionStatusCircle.classList.add("checking");
 }
 
+/**
+ * Set status to connected.
+ */
+function connected() {
+  connectionStatus.classList.remove("checking", "disconnected");
+  connectionStatus.innerHTML = "Connected";
+  connectionStatus.classList.add("connected");
+
+  connectionStatusCircle.classList.remove("checking", "disconnected");
+  connectionStatusCircle.classList.add("connected");
+}
+
+/**
+ * Set status to disconnected.
+ */
 function disconnected() {
   connectionStatus.classList.remove("checked", "disconnected");
   connectionStatus.innerHTML = "Disconnected";
