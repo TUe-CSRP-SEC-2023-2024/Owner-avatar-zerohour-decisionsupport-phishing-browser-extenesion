@@ -4,27 +4,37 @@
  */
 class PasswordInputWarning extends NotificationMethod {
   password_fields;
+  focus_only;
+
+  constructor(focus_only=true) {
+    super();
+    this.focus_only = focus_only;
+  }
 
   setup() {
     this.password_fields = getPasswordFields();
-    this.password_fields.forEach(password_field => {
-      // Add focusin listener to password field
-      password_field.addEventListener("focusin", () => {
-        if (checkstatus === PROCESSING) {
-          this.display();
-        }
+    if (this.focus_only) {
+      this.password_fields.forEach(password_field => {
+        // Add focusin listener to password field
+        password_field.addEventListener("focusin", () => {
+          if (checkstatus === PROCESSING) {
+            this.display();
+          }
+        });
+      
+        // Add focusout listener to password field
+        password_field.addEventListener("focusout", () => {
+          this.hide();
+        });
       });
-    
-      // Add focusout listener to password field
-      password_field.addEventListener("focusout", () => {
-        this.hide();
-      });
-    });
+    }
   }
 
   onStateChange(oldState, newState) {
-    if (newState != PROCESSING) {
+    if (newState !== PROCESSING) {
       this.hide();
+    } else if (!this.focus_only) {
+      this.display();
     }
   }
 

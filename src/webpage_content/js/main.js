@@ -13,6 +13,7 @@ const PHISHING = "PHISHING";
  */
 let notification_methods = [];
 notification_methods.push(new InputBlock());
+notification_methods.push(new PasswordInputWarning(false));
 notification_methods.push(new PhishingPopup());
 
 /**
