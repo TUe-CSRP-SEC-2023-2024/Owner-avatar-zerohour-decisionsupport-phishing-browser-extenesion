@@ -6,9 +6,9 @@ class PasswordInputWarning extends NotificationMethod {
   password_fields;
   focus_only;
 
-  constructor(focus_only=true) {
+  constructor(settings) {
     super();
-    this.focus_only = focus_only;
+    this.focus_only = settings.focus_only;
   }
 
   setup() {

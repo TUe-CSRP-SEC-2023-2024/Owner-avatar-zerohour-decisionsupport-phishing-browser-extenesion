@@ -1,4 +1,4 @@
-import { getCacheResult, storeCacheResult } from "./storage.js";
+import { getCacheResult, storeCacheResult, getNotificationSettings } from "./storage.js";
 import { getDefinitiveState, checkUntilDone, updateBadge } from "./util.js";
 
 // Update badge when we start chrome for the first time
@@ -23,6 +23,18 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
 
   await storeCacheResult(url, "LEGITIMATE");
   showState(sender.tab.id, url, "LEGITIMATE");
+});
+
+// Listener for notification settings requests
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type !== "REQUEST_NOTIFICATION_SETTINGS") {
+    return false;
+  }
+
+  getNotificationSettings().then(sendResponse);
+  // TODO: default settings
+
+  return true;
 });
 
 /**
