@@ -12,9 +12,10 @@ const PHISHING = "PHISHING";
  * The list of active notification methods.
  */
 let notification_methods = [];
-notification_methods.push(new InputBlock());
-notification_methods.push(new PasswordInputWarning(false));
+// notification_methods.push(new InputBlock());
+// notification_methods.push(new PasswordInputWarning(false));
 notification_methods.push(new PhishingPopup());
+notification_methods.push(new FullPageProcessing());
 
 /**
  * Runs a phishing check on the current page, if it's a login page.
