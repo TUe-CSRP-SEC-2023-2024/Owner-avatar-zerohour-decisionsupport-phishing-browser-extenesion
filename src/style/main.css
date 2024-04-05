@@ -6,42 +6,13 @@ html {
 body {
   padding: 0px;
   margin: 0px;
-  text-align: center;
 }
 
-h1 {
-  color: white;
+body iframe {
+  margin-left: 5em;
 }
 
-h2 {
-  color: white;
-}
-
-h3 {
-  color: white;
-}
-
-h4 {
-  color: white;
-}
-
-h5 {
-  color: white;
-}
-
-p {
-  color: white;
-}
-
-text {
-  color: white;
-}
-
-span {
-  color: white;
-}
-
-label {
+h1,h2,h3,h4,h5,p,text,span,label,summary {
   color: white;
 }
 
@@ -176,4 +147,16 @@ input:focus {
 
 .sitename::-webkit-scrollbar {
   display: none;
+}
+
+label.checkboxes {
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+label.checkboxes input {
+  vertical-align: middle;
+}
+label.checkboxes span {
+  vertical-align: middle;
 }

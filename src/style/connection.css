@@ -2,7 +2,6 @@ div.status {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
 }
 
 .circle {
@@ -11,7 +10,6 @@ div.status {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  align-self: center;
 }
 
 .circle.connected {
