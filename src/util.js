@@ -1,18 +1,17 @@
-import { getUuid, getHost, getAllPhishingCacheEntries } from "./storage.js";
+import { getHost, getAllPhishingCacheEntries } from "./storage.js";
 
 // TODO move some functions here to new api.js, that does all contact with API?
-// TODO remove UUID from everywhere
 // TODO deal with 404 from state endpoint
 
 /**
  * Makes a call to the API.
- * 
+ *
  * @param {string} endpoint the endpoint to use.
  * @param {string} method the method (typically GET or POST, default GET).
  * @param {*} jsonObj the data object to send.
- * @returns 
+ * @returns
  */
-async function fetchApi(endpoint, method='GET', jsonObj=undefined) {
+async function fetchApi(endpoint, method = "GET", jsonObj = undefined) {
   const host = await getHost();
 
   let headers = {};
@@ -23,10 +22,10 @@ async function fetchApi(endpoint, method='GET', jsonObj=undefined) {
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(host + "/api/v2" + endpoint, {
+  const res = await fetch(host + "/api/v3" + endpoint, {
     method: method,
     body: body,
-    headers: headers
+    headers: headers,
   });
 
   return await res.json();
@@ -34,15 +33,13 @@ async function fetchApi(endpoint, method='GET', jsonObj=undefined) {
 
 /**
  * Fetches the state of a certain check that is in progress or has finished.
- * 
+ *
  * @param {string} url the URL.
- * @param {string} uuid the UUID.
- * @returns 
+ * @returns
  */
-async function getCheckState(url, uuid) {
-  const json = await fetchApi('/state', 'POST', {
-    URL: url,
-    uuid: uuid,
+async function getCheckState(url) {
+  const json = await fetchApi("/state", "POST", {
+    url: url,
   });
 
   return json[0];
@@ -50,36 +47,32 @@ async function getCheckState(url, uuid) {
 
 /**
  * Requests a check to be ran.
- * 
+ *
  * @param {string} url the URL to check.
- * @param {string} uuid the UUID.
  * @param {string} title the title of the page.
- * @returns 
+ * @returns
  */
-async function requestCheck(url, uuid, title) {
-  return await fetchApi('/check', 'POST', {
-    URL: url,
-    uuid: uuid,
-    pagetitle: title
+async function requestCheck(url, title) {
+  return await fetchApi("/check", "POST", {
+    url: url,
+    pagetitle: title,
   });
 }
 
 /**
  * Requests a check, and only returns when we have a definitive result.
- * 
+ *
  * @param {string} url the URL.
  * @param {string} title the page title.
- * @returns 
+ * @returns
  */
 async function checkUntilDone(url, title) {
-  console.log('Initiating full check on ' + url);
+  console.log("Initiating full check on " + url);
 
-  const uuid = await getUuid();
-
-  let { result } = await requestCheck(url, uuid, title);
+  let { result } = await requestCheck(url, title);
 
   if (result === "PROCESSING") {
-    result = await getDefinitiveState(url, uuid);
+    result = await getDefinitiveState(url);
   }
 
   return result;
@@ -88,19 +81,17 @@ async function checkUntilDone(url, title) {
 /**
  * Gets the definitive state of a previously requested check,
  * possibly waiting until it is available.
- * 
+ *
  * @param {string} url the URL to get the state for.
  * @returns the state.
  */
 async function getDefinitiveState(url) {
-  console.log('Fetching final state on ' + url);
-
-  const uuid = await getUuid();
+  console.log("Fetching final state on " + url);
 
   while (true) {
     await timeout(2000);
 
-    const res = await getCheckState(url, uuid);
+    const res = await getCheckState(url);
     if (res.result !== "PROCESSING") {
       return res.result;
     }
@@ -109,14 +100,14 @@ async function getDefinitiveState(url) {
 
 /**
  * Returns a promise that finishes after the given amount of milliseconds have passed.
- * 
+ *
  * When awaited, this acts as an async sleep instruction.
- * 
+ *
  * @param {number} ms the amount of milliseconds.
- * @returns 
+ * @returns
  */
 function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -127,9 +118,9 @@ async function updateBadge() {
 
   if (count != 0) {
     chrome.action.setBadgeText({ text: count.toString() });
-    chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255], });
+    chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
   } else {
-    chrome.action.setBadgeText({ text: "", });
+    chrome.action.setBadgeText({ text: "" });
   }
 }
 
@@ -139,5 +130,5 @@ export {
   requestCheck,
   checkUntilDone,
   getDefinitiveState,
-  updateBadge
+  updateBadge,
 };

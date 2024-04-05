@@ -1,5 +1,3 @@
-import { createUUID } from "./uuid.js";
-
 /**
  * Gets the cached phishing check entry for a URL.
  * 
@@ -155,26 +153,6 @@ async function getHost() {
   return host;
 }
 
-/**
- * Gets the UUID of this client.
- * 
- * @returns the UUID.
- */
-async function getUuid() {
-  let { uuid } = await chrome.storage.local.get("uuid");
-
-  if (!uuid) {
-    var uuid_val = createUUID();
-    await chrome.storage.local.set({ uuid: uuid_val });
-
-    console.log("UUID set to " + uuid_val);
-
-    return uuid_val;
-  }
-
-  return uuid;
-}
-
 export {
   getCacheEntry,
   getCacheResult,
@@ -185,6 +163,5 @@ export {
   clearCache,
   clearStorage,
   setHost,
-  getHost,
-  getUuid
+  getHost
 };

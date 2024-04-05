@@ -1,4 +1,4 @@
-import { getUuid, getCacheResult, storeCacheResult, getAllPhishingCacheEntries, acknowledgePhishingPage } from '/storage.js';
+import { getCacheResult, storeCacheResult, getAllPhishingCacheEntries, acknowledgePhishingPage } from '/storage.js';
 import { getCheckState, getDefinitiveState, updateBadge } from '/util.js';
 
 let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
