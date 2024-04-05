@@ -2,3 +2,7 @@ html {
   width: 250px;
   height: 400px;
 }
+
+body {
+  text-align: center;
+}
