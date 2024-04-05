@@ -31,11 +31,11 @@
       "js": [
         "webpage_content/js/util.js",
         "webpage_content/js/notification_methods/base.js",
-        "webpage_content/js/notification_methods/input_block.js",
-        "webpage_content/js/notification_methods/full_page_processing.js",
+        "webpage_content/js/notification_methods/password_input_block.js",
         "webpage_content/js/notification_methods/password_input_warning.js",
         "webpage_content/js/notification_methods/phishing_alert.js",
         "webpage_content/js/notification_methods/phishing_popup.js",
+        "webpage_content/js/notification_methods/processing_popup.js",
         "webpage_content/js/main.js"
       ]
     }

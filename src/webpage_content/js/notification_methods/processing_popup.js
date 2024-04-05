@@ -1,7 +1,7 @@
 /**
  * A full-screen popup informing the user that this website is being processed.
  */
-class FullPageProcessing extends NotificationMethod {
+class ProcessingPopup extends NotificationMethod {
   onStateChange(oldState, newState) {
     if (newState == PROCESSING) {
       this.display();
