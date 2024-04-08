@@ -4,33 +4,48 @@
  */
 class PasswordInputWarning extends NotificationMethod {
   password_fields;
+  focus_only;
+
+  constructor(settings) {
+    super();
+    this.focus_only = settings.focus_only;
+  }
 
   setup() {
     this.password_fields = getPasswordFields();
-    this.password_fields.forEach(password_field => {
-      // Add focusin listener to password field
-      password_field.addEventListener("focusin", () => {
-        if (checkstatus === PROCESSING) {
-          this.display();
-        }
+    if (this.focus_only) {
+      this.password_fields.forEach(password_field => {
+        // Add focusin listener to password field
+        password_field.addEventListener("focusin", () => {
+          if (checkstatus === PROCESSING) {
+            this.display();
+          }
+        });
+      
+        // Add focusout listener to password field
+        password_field.addEventListener("focusout", () => {
+          this.hide();
+        });
       });
-    
-      // Add focusout listener to password field
-      password_field.addEventListener("focusout", () => {
-        this.hide();
-      });
-    });
+    }
   }
 
   onStateChange(oldState, newState) {
-    if (newState != PROCESSING) {
+    if (newState !== PROCESSING) {
       this.hide();
+    } else if (!this.focus_only) {
+      this.display();
     }
   }
 
   display() {
     fetchHTML('password_input_warning.html').then(html => {
       this.password_fields.forEach(password_field => {
+        // TODO find better way to only display on actually visible elements (e.g. stackoverflow with hidden password field bypasses this)
+        // if (!password_field.checkVisibility()) {
+        //   return;
+        // }
+
         let elem = parseHTML(html);
         elem.classList.add('tooltipphish');
         document.body.appendChild(elem);

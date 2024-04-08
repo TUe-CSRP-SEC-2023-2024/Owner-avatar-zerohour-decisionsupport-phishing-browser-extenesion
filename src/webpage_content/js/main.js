@@ -12,8 +12,6 @@ const PHISHING = "PHISHING";
  * The list of active notification methods.
  */
 let notification_methods = [];
-notification_methods.push(new PasswordInputWarning());
-notification_methods.push(new PhishingPopup());
 
 /**
  * Runs a phishing check on the current page, if it's a login page.
@@ -25,7 +23,9 @@ function checkPhishing() {
 
   checkstatus = PROCESSING;
 
+  // Setup notification methods and initialize them with PROCESSING state
   notification_methods.forEach(notification_method => notification_method.setup());
+  notification_methods.forEach(notification_method => notification_method.onStateChange(undefined, PROCESSING));
   
   // Send message to service to start phishing check
   chrome.runtime.sendMessage({
@@ -62,6 +62,40 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
 });
 
-// Do a phishing check when the page is loaded, or when switching to the page
-window.addEventListener("focus", checkPhishing);
-window.addEventListener("load", checkPhishing);
+async function load() {
+  const all_notification_methods = {
+    "password-input-block": args => new PasswordInputBlock(args),
+    "password-input-warning": args => new PasswordInputWarning(args),
+    "phishing-alert": args => new PhishingAlert(args),
+    "phishing-screen": args => new PhishingScreen(args),
+    "processing-screen": args => new ProcessingScreen(args)
+  };
+
+  const settings = await chrome.runtime.sendMessage({
+    type: "REQUEST_NOTIFICATION_SETTINGS"
+  });
+
+  const enabled = settings["enabled"];
+  // For each notification method, check if it's enabled and activite it with its settings
+  Object.keys(all_notification_methods).forEach(method => {
+    if (enabled.includes(method)) {
+      let method_settings = {};
+      if ("methods" in settings && method in settings["methods"]) {
+        method_settings = settings["methods"][method];
+      }
+
+      console.log("Adding notification method " + method + " with settings");
+      console.log(method_settings);
+
+      const notification_method = all_notification_methods[method](method_settings);
+
+      notification_methods.push(notification_method);
+    }
+  });
+
+  // Do a phishing check when the page is loaded, or when switching to the page
+  window.addEventListener("focus", checkPhishing);
+  window.addEventListener("load", checkPhishing);
+}
+
+load();

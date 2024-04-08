@@ -153,6 +153,31 @@ async function getHost() {
   return host;
 }
 
+async function storeNotificationSettings(settings) {
+  await chrome.storage.local.set({ notification_settings: settings });
+}
+
+async function getNotificationSettings() {
+  let { notification_settings } = await chrome.storage.local.get("notification_settings");
+
+  if (!notification_settings) {
+    notification_settings = {
+      "enabled": [
+        "password-input-warning",
+        "phishing-screen"
+      ],
+
+      "methods": {
+        "password-input-warning": {
+          "focus-only": true
+        }
+      }
+    }
+  }
+
+  return notification_settings;
+}
+
 export {
   getCacheEntry,
   getCacheResult,
@@ -163,5 +188,7 @@ export {
   clearCache,
   clearStorage,
   setHost,
-  getHost
+  getHost,
+  storeNotificationSettings,
+  getNotificationSettings
 };

@@ -1,7 +1,7 @@
 /**
  * A full-screen popup informing the user that this website was detected as phishing.
  */
-class PhishingPopup extends NotificationMethod {
+class PhishingScreen extends NotificationMethod {
   onStateChange(oldState, newState) {
     if (newState == PHISHING) {
       this.display();
