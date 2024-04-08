@@ -164,7 +164,7 @@ async function getNotificationSettings() {
     notification_settings = {
       "enabled": [
         "password-input-warning",
-        "phishing-popup"
+        "phishing-screen"
       ],
 
       "methods": {

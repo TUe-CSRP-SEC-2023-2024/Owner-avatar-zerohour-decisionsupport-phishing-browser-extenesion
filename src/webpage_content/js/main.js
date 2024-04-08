@@ -12,11 +12,6 @@ const PHISHING = "PHISHING";
  * The list of active notification methods.
  */
 let notification_methods = [];
-// notification_methods.push(new PasswordInputBlock());
-// notification_methods.push(new PasswordInputWarning(false));
-// notification_methods.push(new PhishingPopup());
-// notification_methods.push(new ProcessingPopup());
-
 
 /**
  * Runs a phishing check on the current page, if it's a login page.
@@ -72,8 +67,8 @@ async function load() {
     "password-input-block": args => new PasswordInputBlock(args),
     "password-input-warning": args => new PasswordInputWarning(args),
     "phishing-alert": args => new PhishingAlert(args),
-    "phishing-popup": args => new PhishingPopup(args),
-    "processing-popup": args => new ProcessingPopup(args)
+    "phishing-screen": args => new PhishingScreen(args),
+    "processing-screen": args => new ProcessingScreen(args)
   };
 
   const settings = await chrome.runtime.sendMessage({
@@ -89,7 +84,7 @@ async function load() {
         method_settings = settings["methods"][method];
       }
 
-      console.log("adding NM " + method + " with settings");
+      console.log("Adding notification method " + method + " with settings");
       console.log(method_settings);
 
       const notification_method = all_notification_methods[method](method_settings);

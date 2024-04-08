@@ -32,7 +32,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   getNotificationSettings().then(sendResponse);
-  // TODO: default settings
 
   return true;
 });
