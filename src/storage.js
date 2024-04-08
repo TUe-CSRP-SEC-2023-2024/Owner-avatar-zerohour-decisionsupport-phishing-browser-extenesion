@@ -160,6 +160,21 @@ async function storeNotificationSettings(settings) {
 async function getNotificationSettings() {
   let { notification_settings } = await chrome.storage.local.get("notification_settings");
 
+  if (!notification_settings) {
+    notification_settings = {
+      "enabled": [
+        "password-input-warning",
+        "phishing-popup"
+      ],
+
+      "methods": {
+        "password-input-warning": {
+          "focus-only": true
+        }
+      }
+    }
+  }
+
   return notification_settings;
 }
 
