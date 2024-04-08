@@ -30,38 +30,37 @@ class PasswordInputWarning extends NotificationMethod {
     }
   }
 
-  onStateChange(oldState, newState) {
+  async onStateChange(oldState, newState) {
     if (newState !== PROCESSING) {
       this.hide();
     } else if (!this.focus_only) {
-      this.display();
+      await this.display();
     }
   }
 
-  display() {
-    fetchHTML('password_input_warning.html').then(html => {
-      this.password_fields.forEach(password_field => {
-        // TODO find better way to only display on actually visible elements (e.g. stackoverflow with hidden password field bypasses this)
-        // if (!password_field.checkVisibility()) {
-        //   return;
-        // }
+  async display() {
+    let html = await fetchHTML('password_input_warning.html');
+    this.password_fields.forEach(password_field => {
+      // TODO find better way to only display on actually visible elements (e.g. stackoverflow with hidden password field bypasses this)
+      // if (!password_field.checkVisibility()) {
+      //   return;
+      // }
 
-        let elem = parseHTML(html);
-        elem.classList.add('tooltipphish');
-        document.body.appendChild(elem);
-        
-        let fieldProps = password_field.getBoundingClientRect();
-        let tooltipProps = elem.firstChild.getBoundingClientRect();
-        let topPos = fieldProps.top - tooltipProps.height;
-        elem.firstChild.style.cssText += "left:" +
-            fieldProps.left +
-            "px;top:" +
-            topPos +
-            "px;";
-        
-        let firstChild = document.body.firstChild;
-        document.body.insertBefore(elem, firstChild);
-      });
+      let elem = parseHTML(html);
+      elem.classList.add('tooltipphish');
+      document.body.appendChild(elem);
+      
+      let fieldProps = password_field.getBoundingClientRect();
+      let tooltipProps = elem.firstChild.getBoundingClientRect();
+      let topPos = fieldProps.top - tooltipProps.height;
+      elem.firstChild.style.cssText += "left:" +
+          fieldProps.left +
+          "px;top:" +
+          topPos +
+          "px;";
+      
+      let firstChild = document.body.firstChild;
+      document.body.insertBefore(elem, firstChild);
     });
   }
 

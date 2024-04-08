@@ -2,19 +2,18 @@
  * A full-screen popup informing the user that this website is being processed.
  */
 class Processingscreen extends NotificationMethod {
-  onStateChange(oldState, newState) {
+  async onStateChange(oldState, newState) {
     if (newState == PROCESSING) {
-      this.display();
+      await this.display();
     } else {
       this.hide();
     }
   }
 
-  display() {
+  async display() {
     // TODO find good way to isolate popup from webpage-defined style (e.g. iframe)
-    fetchHTML('processing_page.html').then(html => {
-      document.body.appendChild(parseHTML(html, 'phishingprocessingpopup'));
-    });
+    let html = await fetchHTML('processing_page.html');
+    document.body.appendChild(parseHTML(html, 'phishingprocessingpopup'));
   }
 
   hide() {

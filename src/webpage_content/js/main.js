@@ -16,7 +16,7 @@ let notification_methods = [];
 /**
  * Runs a phishing check on the current page, if it's a login page.
  */
-function checkPhishing() {
+async function checkPhishing() {
   if (checkstatus || !isLoginPage()) {
     return;
   }
@@ -25,7 +25,6 @@ function checkPhishing() {
 
   // Setup notification methods and initialize them with PROCESSING state
   notification_methods.forEach(notification_method => notification_method.setup());
-  notification_methods.forEach(notification_method => notification_method.onStateChange(undefined, PROCESSING));
   
   // Send message to service to start phishing check
   chrome.runtime.sendMessage({
@@ -37,7 +36,7 @@ function checkPhishing() {
 /**
  * Listener for phishing check status updates.
  */
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
   if (request.type !== "CHECK_STATUS") {
     return;
   }
@@ -57,8 +56,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
   // .. and if the status changed, notify the notification methods
   if (checkstatus != prev_checkstatus) {
-    notification_methods.forEach(notification_method => 
-        notification_method.onStateChange(prev_checkstatus, checkstatus));
+    for (let method of notification_methods) {
+      await method.onStateChange(prev_checkstatus, checkstatus);
+    }
   }
 });
 
@@ -83,9 +83,6 @@ async function load() {
       if ("methods" in settings && method in settings["methods"]) {
         method_settings = settings["methods"][method];
       }
-
-      console.log("Adding notification method " + method + " with settings");
-      console.log(method_settings);
 
       const notification_method = all_notification_methods[method](method_settings);
 

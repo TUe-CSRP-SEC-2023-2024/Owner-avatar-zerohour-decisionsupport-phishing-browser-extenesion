@@ -26,7 +26,7 @@ class NotificationMethod {
    * @param {string} oldState the previous state of the phishing check, see `checkstatus`.
    * @param {string} newState the new and current state of the phishing check, see `checkstatus`.
    */
-  onStateChange(oldState, newState) {
+  async onStateChange(oldState, newState) {
     throw new Error("Abstract method onStateChange() not implemented")
   }
 }
