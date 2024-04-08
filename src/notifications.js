@@ -1,9 +1,13 @@
-import { storeNotificationSettings } from './storage.js';
+import { storeNotificationSettings, getNotificationSettings } from './storage.js';
 
 const methods = ["password-input-block", "password-input-warning", "phishing-alert", "phishing-popup", "processing-popup"];
 
 Array.prototype.forEach.call(document.getElementsByClassName("settings-checkbox"), elem =>
   elem.addEventListener("change", updateSettings)
+);
+
+Array.prototype.forEach.call(document.getElementsByClassName("settings-input"), elem =>
+  elem.disabled = true
 );
 
 function updateSettings() {
@@ -34,3 +38,27 @@ function updateSettings() {
   console.log("Stored notification settings");
   console.log(settings);
 }
+
+async function loadSettings() {
+  const settings = await getNotificationSettings();
+
+  const enabled = settings["enabled"];
+  const method_settings = settings["methods"];
+
+  methods.forEach(method => {
+    let elem = document.getElementById(method + "-enabled");
+    elem.checked = enabled.includes(method);
+  });
+
+  const password_input_warning = method_settings["password-input-warning"];
+  document.getElementById("password-input-warning-focus-only").checked = password_input_warning["focus-only"];
+  
+  Array.prototype.forEach.call(document.getElementsByClassName("settings-input"), elem =>
+    elem.disabled = false
+  );
+
+  console.log("Loaded notification settings");
+  console.log(settings);
+}
+
+await loadSettings();
