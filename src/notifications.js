@@ -16,7 +16,7 @@ function updateSettings() {
   // Get which notification methods are enabled
   let enabled = [];
   methods.forEach(method => {
-    let elem = document.getElementById(method + "-enabled");
+    let elem = getEnabledCheckbox(method);
     let checked = elem.checked;
 
     if (checked) {
@@ -46,7 +46,7 @@ async function loadSettings() {
   const method_settings = settings["methods"];
 
   methods.forEach(method => {
-    let elem = document.getElementById(method + "-enabled");
+    let elem = getEnabledCheckbox(method);
     elem.checked = enabled.includes(method);
   });
 
@@ -59,6 +59,14 @@ async function loadSettings() {
 
   console.log("Loaded notification settings");
   console.log(settings);
+}
+
+function getEnabledCheckbox(method) {
+  let elem = document.getElementById(method + "-enabled");
+  if (!elem) {
+    throw Error("could not find enabled checkbox for " + method);
+  }
+  return elem;
 }
 
 await loadSettings();
