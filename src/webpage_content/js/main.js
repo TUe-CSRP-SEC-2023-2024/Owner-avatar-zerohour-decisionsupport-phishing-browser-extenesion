@@ -21,7 +21,7 @@ async function checkPhishing() {
     return;
   }
 
-  checkstatus = PROCESSING;
+  checkstatus = undefined;
 
   // Setup notification methods and initialize them with PROCESSING state
   notification_methods.forEach(notification_method => notification_method.setup());
