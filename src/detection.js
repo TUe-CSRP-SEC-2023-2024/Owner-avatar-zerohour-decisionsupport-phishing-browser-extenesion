@@ -12,6 +12,7 @@ let decisionStrategyUnanimous = document.getElementById(
 let decisionStrategyStrict = document.getElementById(
   "decision-strategy-strict"
 );
+let saveButton = document.getElementById("save-button");
 
 let strategies = new Map();
 strategies.set("majority", decisionStrategyMajority);
@@ -26,12 +27,17 @@ try {
   console.log(capabilities);
 
   setupStrategies();
+  getSettings();
 
   capabilities.detection_methods.forEach((method) => {});
 } catch (error) {
   noConnection.hidden = false;
   console.error(error);
 }
+
+saveButton.addEventListener("click", async () => {
+  saveSettings();
+});
 
 function setupStrategies() {
   let index = 0;
@@ -45,10 +51,26 @@ function setupStrategies() {
   });
 }
 
-function getSettings() {
-  settings = await fetchApi("/settings");
+function setupMethods() {
+  let index = 0;
+
+  // capabilities.decision_strategies.forEach((strategy) => {
+  //   if (index == 0) {
+  //     strategies.get(strategy).checked = true;
+  //   }
+  //   strategies.get(strategy).disabled = false;
+  //   index++;
+  // });
+}
+
+async function getSettings() {
+  let settings = await fetchApi("/settings");
+
+  console.log(settings);
 
   strategies(settings.decision_strategy).checked = true;
 
   return settings;
 }
+
+async function saveSettings() {}
