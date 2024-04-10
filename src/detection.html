@@ -1,12 +1,75 @@
 <!DOCTYPE html>
+
 <head>
   <link rel="stylesheet" href="style/main.css" />
+  <link rel="stylesheet" href="style/detections.css" />
   <script src="detection.js" type="module"></script>
 </head>
+
 <body>
   <div>
     <h1>Detection Settings</h1>
-    <div id="">
+
+    <div class="strategies">
+      <h2>Decision Strategy</h2>
+      <p>
+        Select between the decision strategies below to calculate the final outcome of the detection procedure.
+      </p>
+
+      <input type="radio" name="decision-strategy" id="decision-strategy-majority" checked="checked" />
+      <label for="decision-strategy-majority">
+        <span>
+          <h3>Majority</h3>
+          <p>
+            The <i>default</i> decision strategy. Averages results from multiple detection methods to compute the final
+            outcome.
+          </p>
+        </span>
+      </label>
+
+      <input type="radio" name="decision-strategy" id="decision-strategy-unanimous" />
+      <label for="decision-strategy-unanimous">
+        <span>
+          <h3>Unanimous</h3>
+          <p>
+            If the results of the detection methods are the same, it yields that outcome; otherwise, it's inconclusive.
+          </p>
+        </span>
+      </label>
+
+      <input type="radio" name="decision-strategy" id="decision-strategy-strict" />
+      <label for="decision-strategy-strict">
+        <span>
+          <h3>Strict</h3>
+          <p>
+            If one of the results of the multiple detection methods is <i>phishing</i> it will set the final outcome to
+            <i>phishing</i>.
+          </p>
+        </span>
+      </label>
+
+    </div>
+
+    <div id="methods">
+      <h2>Detection Methods</h2>
+    </div>
+
+    <div class="cache">
+      <h2>Cache Settings</h2>
+      <div>
+        <h3>Bypass Cache</h3>
+        <p>
+          Disabled by default. Enable this if you want to bypass the cache of the server.
+        </p>
+        <label class="checkboxes">
+          <input type="checkbox">
+          <span>Enabled</span>
+        </label>
+      </div>
+    </div>
+
+<!-- 
+    <div>
       <label>Detection Method</label>
       <select name="Detection Method" id="detection-method-select">
       </select>
@@ -21,7 +84,10 @@
       <input type="checkbox" id="delete-data-checkbox" />
       <br />
       <br />
-      <button id="save-button">Save</button>
-    </div>
+    </div> -->
+    <div>
+    <button id="save-button">Save</button>
+    <h4 style="color: gray;"> Saved successfully (12:00PM)<h4>
+    <div>
   </div>
 </body>

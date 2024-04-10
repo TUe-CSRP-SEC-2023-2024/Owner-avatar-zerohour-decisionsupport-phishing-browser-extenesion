@@ -1,0 +1,25 @@
+.strategies {
+    margin-bottom: 3em;
+}
+
+.strategies label {
+  display: inline-block;
+  width: 350px;
+  padding: 10px;
+  margin-right: 5px;
+  border: solid 3px #454545;
+  user-select: none;
+  cursor: pointer;
+}
+
+.strategies input[type="radio"] {
+  display: none;
+}
+
+.strategies input[type="radio"]:checked + label {
+  border-color: white;
+}
+
+.cache {
+    margin-bottom: 3em;
+}

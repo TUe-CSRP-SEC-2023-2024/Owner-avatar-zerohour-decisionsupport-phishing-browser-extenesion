@@ -12,7 +12,16 @@ body iframe {
   margin-left: 5em;
 }
 
-h1,h2,h3,h4,h5,p,text,span,label,summary {
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+text,
+span,
+label,
+summary {
   color: white;
 }
 
@@ -24,6 +33,13 @@ input {
 }
 
 input[type="checkbox"] {
+  height: 15px;
+  width: 15px;
+  cursor: pointer;
+  border: none;
+}
+
+input[type="radio"] {
   height: 15px;
   width: 15px;
   cursor: pointer;
@@ -160,3 +176,15 @@ label.checkboxes input {
 label.checkboxes span {
   vertical-align: middle;
 }
+
+/* label.radio {
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+label.radio input {
+  vertical-align: middle;
+}
+label.radio span {
+  vertical-align: middle;
+} */
