@@ -56,7 +56,8 @@ async function tryConnection() {
   const host = await getHost();
 
   try {
-    const res = await fetch(host);
+    //TODO we should change this to use fetchApi
+    const res = await fetch(host + "/api/v3/ping");
 
     if (res.ok) {
       connected();
