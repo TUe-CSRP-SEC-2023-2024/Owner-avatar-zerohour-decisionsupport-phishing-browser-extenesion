@@ -19,6 +19,10 @@ strategies.set("majority", decisionStrategyMajority);
 strategies.set("unanimous", decisionStrategyUnanimous);
 strategies.set("strict", decisionStrategyStrict);
 
+let methods = new Map();
+// methods.set("dst", );
+// methods.set("random", );
+
 let capabilities;
 
 try {
@@ -54,6 +58,13 @@ function setupStrategies() {
 function setupMethods() {
   let index = 0;
 
+  capabilities.detection_methods.forEach((method) => {
+    if (index == 0) {
+      strategies.get(strategy).checked = true;
+    }
+    strategies.get(strategy).disabled = false;
+    index++;
+  });
   // capabilities.decision_strategies.forEach((strategy) => {
   //   if (index == 0) {
   //     strategies.get(strategy).checked = true;
