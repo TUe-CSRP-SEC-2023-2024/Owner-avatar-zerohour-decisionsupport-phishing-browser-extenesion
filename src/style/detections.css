@@ -18,6 +18,19 @@
 
 .strategies input[type="radio"]:checked + label {
   border-color: white;
+  color: white;
+}
+
+.method {
+  margin-bottom: 3em;
+}
+
+.method details {
+  margin-top: 1em;
+}
+
+#methods {
+  margin-bottom: 3em;
 }
 
 .cache {

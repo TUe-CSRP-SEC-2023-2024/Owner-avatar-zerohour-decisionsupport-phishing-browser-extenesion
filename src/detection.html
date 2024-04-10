@@ -52,42 +52,71 @@
 
     <div id="methods">
       <h2>Detection Methods</h2>
-    </div>
-
-    <div class="cache">
-      <h2>Cache Settings</h2>
-      <div>
-        <h3>Bypass Cache</h3>
+      <div class="method">
+        <h3>
+          DST
+        </h3>
         <p>
-          Disabled by default. Enable this if you want to bypass the cache of the server.
+          Prevents you from entering your Password
+          while the extension is analyzing the webpage.
         </p>
+
         <label class="checkboxes">
-          <input type="checkbox">
+          <input type="checkbox" id="a">
           <span>Enabled</span>
         </label>
+
+        <details>
+          <summary>Settings</summary>
+          <label class="checkboxes">
+            <input type="checkbox" id="password-input-warning-focus-only">
+            <span>Only display warning on focus</span>
+          </label>
+        </details>
+      </div>
+
+      <div class="method">
+        <h3>
+          Random
+        </h3>
+        <p>
+          This detection methods was created only for testing purposes. This method randomly generates a result.
+        </p>
+
+        <label class="checkboxes">
+          <input type="checkbox" id="b">
+          <span>Enabled</span>
+        </label>
+
+        <details>
+          <summary>Settings</summary>
+          <label class="checkboxes">
+            <input type="text" id="password-input-warning-focus-only">
+            <span>Seed</span>
+          </label>
+        </details>
       </div>
     </div>
 
-<!-- 
+  </div>
+
+  <div class="cache">
+    <h2>Cache Settings</h2>
     <div>
-      <label>Detection Method</label>
-      <select name="Detection Method" id="detection-method-select">
-      </select>
-      <br />
-      <br />
-      <label>Decision Strategy</label>
-      <select name="Decision Strategy" id="decision-strategy-select">
-      </select>
-      <br />
-      <br />
-      <label>Bypass cache?</label>
-      <input type="checkbox" id="delete-data-checkbox" />
-      <br />
-      <br />
-    </div> -->
-    <div>
+      <h3>Bypass Cache</h3>
+      <p>
+        Disabled by default. Enable this if you want to bypass the cache of the server.
+      </p>
+      <label class="checkboxes">
+        <input type="checkbox">
+        <span>Enabled</span>
+      </label>
+    </div>
+  </div>
+
+  <div>
     <button id="save-button">Save</button>
     <h4 style="color: gray;"> Saved successfully (12:00PM)<h4>
-    <div>
-  </div>
+        <div>
+        </div>
 </body>
