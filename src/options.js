@@ -1,8 +1,8 @@
 const tabs = new Map();
-tabs.set("settings", "Settings");
 tabs.set("connection", "Connection");
-tabs.set("detection", "Detection");
+tabs.set("server", "Server");
 tabs.set("notifications", "Notifications");
+tabs.set("storage_settings", "Storage");
 tabs.set("about", "About");
 
 let headerContent = document.getElementById("header-content");
@@ -62,7 +62,7 @@ function loadContentFromHash() {
   if (tabs.has(tab)) {
     loadContent(tab);
   } else {
-    loadContent("settings"); // main tab
+    loadContent("connection"); // main tab
   }
 }
 
