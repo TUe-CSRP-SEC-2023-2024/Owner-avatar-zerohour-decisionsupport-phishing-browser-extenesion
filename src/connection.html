@@ -12,19 +12,23 @@
     <span id="connection-status-circle" class="circle checking"></span>
     <h2 id="connection-status" class="checking">Checking...</h2>
   </div>
+
   <div>
     <h3>API Server IP</h3>
     <input type="text" id="server-ip" />
   </div>
+
   <div>
     <h3>API Server Port</h3>
     <input type="number" min="0" max="65535" id="server-port" />
   </div>
-  <div>
-    <label>Use HTTPS</label>
-    <input type="checkbox" id="https-checkbox" />
-  </div>
   <br />
+  <div>
+    <label class="checkboxes">
+      <input type="checkbox" id="https-checkbox">
+      <span>Use HTTPS</span>
+    </label>
+  </div>
   <br />
   <button id="save-button">Save & Connect</button>
 </body>
