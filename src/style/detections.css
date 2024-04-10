@@ -1,5 +1,5 @@
 .strategies {
-    margin-bottom: 3em;
+  margin-bottom: 3em;
 }
 
 .strategies label {
@@ -21,6 +21,13 @@
   color: white;
 }
 
+.strategies input[type="radio"]:disabled + label {
+  border-color: #454545;
+  color: #454545;
+  cursor: not-allowed;
+  display: none;
+}
+
 .method {
   margin-bottom: 3em;
 }
@@ -34,5 +41,5 @@
 }
 
 .cache {
-    margin-bottom: 3em;
+  margin-bottom: 3em;
 }

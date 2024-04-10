@@ -1,21 +1,54 @@
-import { fetchApi } from './util.js';
+import { fetchApi } from "./util.js";
 
 // Elements for detection methods and decision strategy list
-let detectionMethodSelect = document.getElementById("detection-method-select");
-let decisionStrategySelect = document.getElementById("decision-strategy-select");
+let noConnection = document.getElementById("no-connection");
+let detectionSettings = document.getElementById("detection-settings");
+let decisionStrategyMajority = document.getElementById(
+  "decision-strategy-majority"
+);
+let decisionStrategyUnanimous = document.getElementById(
+  "decision-strategy-unanimous"
+);
+let decisionStrategyStrict = document.getElementById(
+  "decision-strategy-strict"
+);
 
-const data = await fetchApi("/capabilities");
+let strategies = new Map();
+strategies.set("majority", decisionStrategyMajority);
+strategies.set("unanimous", decisionStrategyUnanimous);
+strategies.set("strict", decisionStrategyStrict);
 
-data.detection_methods.forEach(method => {
-  let option = document.createElement("option");
-  option.value = method;
-  option.text = method;
-  detectionMethodSelect.add(option);
-});
+let capabilities;
 
-data.decision_strategies.forEach(strategy => {
-  let option = document.createElement("option");
-  option.value = strategy;
-  option.text = strategy;
-  decisionStrategySelect.add(option);
-});
+try {
+  capabilities = await fetchApi("/capabilities");
+  detectionSettings.hidden = false;
+  console.log(capabilities);
+
+  setupStrategies();
+
+  capabilities.detection_methods.forEach((method) => {});
+} catch (error) {
+  noConnection.hidden = false;
+  console.error(error);
+}
+
+function setupStrategies() {
+  let index = 0;
+
+  capabilities.decision_strategies.forEach((strategy) => {
+    if (index == 0) {
+      strategies.get(strategy).checked = true;
+    }
+    strategies.get(strategy).disabled = false;
+    index++;
+  });
+}
+
+function getSettings() {
+  settings = await fetchApi("/settings");
+
+  strategies(settings.decision_strategy).checked = true;
+
+  return settings;
+}
