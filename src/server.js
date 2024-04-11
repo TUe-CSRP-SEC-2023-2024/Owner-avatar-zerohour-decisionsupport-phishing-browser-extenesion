@@ -57,6 +57,10 @@ methods.set("random", [
   randomDetectionMethodDetails,
 ]);
 
+let logoFinders = new Map();
+logoFinders.set("homebrew", dstDetectionMethodHomebrew);
+logoFinders.set("gcv", dstDetectionMethodGCV);
+
 let capabilities;
 
 try {
@@ -113,6 +117,10 @@ async function getSettings() {
     methods.get(method)[1].checked = true;
     methods.get(method)[2].hidden = false;
   });
+
+  logoFinders.get(settings.dst.logo_finder).checked = true;
+
+  randomDetectionMethodSeed.value = settings.random.seed;
 
   cacheCheckbox.checked = settings.cache;
 
