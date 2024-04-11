@@ -21,7 +21,7 @@
           Select between the decision strategies below to calculate the final outcome of the detection procedure.
         </p>
 
-        <input type="radio" name="decision-strategy" id="decision-strategy-majority" disabled/>
+        <input type="radio" name="decision-strategy" id="decision-strategy-majority" disabled />
         <label for="decision-strategy-majority">
           <span>
             <h3>Majority</h3>
@@ -33,7 +33,7 @@
           </span>
         </label>
 
-        <input type="radio" name="decision-strategy" id="decision-strategy-unanimous" disabled/>
+        <input type="radio" name="decision-strategy" id="decision-strategy-unanimous" disabled />
         <label for="decision-strategy-unanimous">
           <span>
             <h3>Unanimous</h3>
@@ -44,7 +44,7 @@
           </span>
         </label>
 
-        <input type="radio" name="decision-strategy" id="decision-strategy-strict" disabled/>
+        <input type="radio" name="decision-strategy" id="decision-strategy-strict" disabled />
         <label for="decision-strategy-strict">
           <span>
             <h3>Strict</h3>
@@ -69,60 +69,75 @@
           </p>
 
           <label class="checkboxes">
-            <input type="checkbox" id="a">
+            <input type="checkbox" id="detection-method-dst">
             <span>Enabled</span>
           </label>
 
           <details>
-            <summary>Settings</summary>
-            <label class="checkboxes">
-              <input type="checkbox" id="password-input-warning-focus-only">
-              <span>Ignore this for now</span>
-            </label>
-          </details>
-        </div>
+            <summary>More Settings</summary>
+            <div>
 
-        <div class="method">
-          <h3>
-            Random
-          </h3>
-          <p>
-            This detection methods was created only for testing purposes. This method randomly generates a result.
-          </p>
+              <h4>Select preferred logo detection service.</h4>
 
-          <label class="checkboxes">
-            <input type="checkbox" id="b">
-            <span>Enabled</span>
-          </label>
+              <div>
+                <label class="radio">
+                  <input type="radio" id="detection-method-dst-homebrew" name="logo-detection" checked>
+                  <span>Homebrew</span>
+                </label>
+              </div>
 
-          <details>
-            <summary>Settings</summary>
-            <label class="checkboxes">
-              <input type="text" id="password-input-warning-focus-only-a">
-              <span>Seed</span>
-            </label>
+              <div>
+                <label class="radio">
+                  <input type="radio" id="detection-method-dst-gcv" name="logo-detection">
+                  <span>Google Cloud Vision</span>
+                </label>
+              </div>
+
           </details>
         </div>
       </div>
 
-      <div class="cache">
-        <h2>Cache Settings</h2>
-        <div>
-          <h3>Bypass Cache</h3>
-          <p>
-            Disabled by default. Enable this if you want to bypass the cache of the server.
-          </p>
-          <label class="checkboxes">
-            <input type="checkbox">
-            <span>Enabled</span>
-          </label>
-        </div>
-      </div>
+      <div class="method">
+        <h3>
+          Random
+        </h3>
+        <p>
+          This detection methods was created only for testing purposes. This method randomly generates a result.
+        </p>
 
-      <div style="margin-bottom: 5em;">
-        <button id="save-button">Save</button>
-        <!-- <h4 style="color: gray;"> Saved successfully (12:00PM)<h4> -->
+        <label class="checkboxes">
+          <input type="checkbox" id="detection-method-random">
+          <span>Enabled</span>
+        </label>
+
+        <details open disabled>
+          <summary>More Settings</summary>
+          <label class="checkboxes">
+            <input type="text" id="detection-method-random-seed">
+            <span>Seed</span>
+          </label>
+        </details>
       </div>
     </div>
+
+    <div class="cache">
+      <h2>Cache Settings</h2>
+      <div>
+        <h3>Bypass Cache</h3>
+        <p>
+          Disabled by default. Enable this if you want to bypass the cache of the server.
+        </p>
+        <label class="checkboxes">
+          <input type="checkbox" id="checkbox-cache">
+          <span>Enabled</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 5em;">
+      <button id="save-button">Save</button>
+      <!-- <h4 style="color: gray;"> Saved successfully (12:00PM)<h4> -->
+    </div>
+  </div>
   </div>
 </body>
