@@ -129,15 +129,49 @@ async function getSettings() {
 
 // Function that saves the settings to the server
 async function saveSettings() {
-  // await fetchApi("/settings", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({
-  //     decision_strategy: ,
-  //     detection_method: ,
-  //     cache: cacheCheckbox.checked,
-  //   }),
-  // });
+  let decision_strategy = null;
+
+  strategies.forEach((strategy, key) => {
+    if (strategy.checked) {
+      decision_strategy = key;
+    }
+  });
+
+  let detection_methods = [];
+  methods.forEach((method, key) => {
+    if (method[1].checked) {
+      detection_methods.push(key);
+    }
+  });
+
+  let logo_finder = null;
+  logoFinders.forEach((logoFinder, key) => {
+    if (logoFinder.checked) {
+      logo_finder = key;
+    }
+  });
+
+  console.log({
+    bypass_cache: cacheCheckbox.checked,
+    decision_strategy: decision_strategy,
+    detection_methods: detection_methods,
+    dst: {
+      logo_finder: logo_finder,
+    },
+    random: {
+      seed: randomDetectionMethodSeed.value,
+    },
+  });
+
+  await fetchApi("/settings", "POST", {
+    bypass_cache: cacheCheckbox.checked,
+    decision_strategy: decision_strategy,
+    detection_methods: detection_methods,
+    dst: {
+      logo_finder: logo_finder,
+    },
+    random: {
+      seed: randomDetectionMethodSeed.value,
+    },
+  });
 }
