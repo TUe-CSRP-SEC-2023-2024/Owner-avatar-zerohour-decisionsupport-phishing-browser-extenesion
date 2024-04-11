@@ -60,7 +60,8 @@
 
       <div id="methods">
         <h2>Detection Methods</h2>
-        <div class="method">
+
+        <div class="method" id="detection-method-dst" hidden>
           <h3>
             DST
           </h3>
@@ -69,7 +70,7 @@
           </p>
 
           <label class="checkboxes">
-            <input type="checkbox" id="detection-method-dst">
+            <input type="checkbox" id="detection-method-dst-checkbox" name="detection-method" disabled>
             <span>Enabled</span>
           </label>
 
@@ -95,31 +96,31 @@
 
           </details>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>
-          Random
-        </h3>
-        <p>
-          This detection methods was created only for testing purposes. This method randomly generates a result.
-        </p>
+        <div class="method" id="detection-method-random" hidden>
+          <h3>
+            Random
+          </h3>
+          <p>
+            This detection methods was created only for testing purposes. This method randomly generates a result.
+          </p>
 
-        <label class="checkboxes">
-          <input type="checkbox" id="detection-method-random">
-          <span>Enabled</span>
-        </label>
-
-        <details open disabled>
-          <summary>More Settings</summary>
           <label class="checkboxes">
-            <input type="text" id="detection-method-random-seed">
-            <span>Seed</span>
+            <input type="checkbox" id="detection-method-random-checkbox" name="detection-method" disabled>
+            <span>Enabled</span>
           </label>
-        </details>
-      </div>
-    </div>
 
+          <details>
+            <summary>More Settings</summary>
+            <label class="checkboxes">
+              <input type="text" id="detection-method-random-seed">
+              <span>Seed</span>
+            </label>
+          </details>
+        </div>
+      </div>
+
+    </div>
     <div class="cache">
       <h2>Cache Settings</h2>
       <div>

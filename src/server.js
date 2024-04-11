@@ -14,14 +14,25 @@ let decisionStrategyStrict = document.getElementById(
 );
 let saveButton = document.getElementById("save-button");
 
+let dstDetectionMethod = document.getElementById("detection-method-dst");
+let dstDetectionMethodCheckbox = document.getElementById(
+  "detection-method-dst-checkbox"
+);
+let randomDetectionMethod = document.getElementById("detection-method-random");
+let randomDetectionMethodCheckbox = document.getElementById(
+  "detection-method-random-checkbox"
+);
+
+let cacheCheckbox = document.getElementById("checkbox-cache");
+
 let strategies = new Map();
 strategies.set("majority", decisionStrategyMajority);
 strategies.set("unanimous", decisionStrategyUnanimous);
 strategies.set("strict", decisionStrategyStrict);
 
 let methods = new Map();
-// methods.set("dst", );
-// methods.set("random", );
+methods.set("dst", [dstDetectionMethod, dstDetectionMethodCheckbox]);
+methods.set("random", [randomDetectionMethod, randomDetectionMethodCheckbox]);
 
 let capabilities;
 
@@ -31,7 +42,8 @@ try {
   console.log(capabilities);
 
   setupStrategies();
-  getSettings();
+  setupMethods();
+  // getSettings();
 
   capabilities.detection_methods.forEach((method) => {});
 } catch (error) {
@@ -60,18 +72,12 @@ function setupMethods() {
 
   capabilities.detection_methods.forEach((method) => {
     if (index == 0) {
-      strategies.get(strategy).checked = true;
+      methods.get(method)[1].checked = true;
     }
-    strategies.get(strategy).disabled = false;
+    methods.get(method)[0].hidden = false;
+    methods.get(method)[1].disabled = false;
     index++;
   });
-  // capabilities.decision_strategies.forEach((strategy) => {
-  //   if (index == 0) {
-  //     strategies.get(strategy).checked = true;
-  //   }
-  //   strategies.get(strategy).disabled = false;
-  //   index++;
-  // });
 }
 
 async function getSettings() {
