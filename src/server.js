@@ -17,6 +17,9 @@ let dstDetectionMethod = document.getElementById("detection-method-dst");
 let dstDetectionMethodCheckbox = document.getElementById(
   "detection-method-dst-checkbox"
 );
+let dstDetectionMethodDetails = document.getElementById(
+  "detection-method-dst-details"
+);
 let dstDetectionMethodHomebrew = document.getElementById(
   "detection-method-dst-homebrew"
 );
@@ -25,6 +28,12 @@ let dstDetectionMethodGCV = document.getElementById("detection-method-dst-gcv");
 let randomDetectionMethod = document.getElementById("detection-method-random");
 let randomDetectionMethodCheckbox = document.getElementById(
   "detection-method-random-checkbox"
+);
+let randomDetectionMethodDetails = document.getElementById(
+  "detection-method-random-details"
+);
+let randomDetectionMethodSeed = document.getElementById(
+  "detection-method-random-seed"
 );
 
 let cacheCheckbox = document.getElementById("checkbox-cache");
@@ -37,8 +46,16 @@ strategies.set("unanimous", decisionStrategyUnanimous);
 strategies.set("strict", decisionStrategyStrict);
 
 let methods = new Map();
-methods.set("dst", [dstDetectionMethod, dstDetectionMethodCheckbox]);
-methods.set("random", [randomDetectionMethod, randomDetectionMethodCheckbox]);
+methods.set("dst", [
+  dstDetectionMethod,
+  dstDetectionMethodCheckbox,
+  dstDetectionMethodDetails,
+]);
+methods.set("random", [
+  randomDetectionMethod,
+  randomDetectionMethodCheckbox,
+  randomDetectionMethodDetails,
+]);
 
 let capabilities;
 
@@ -48,18 +65,22 @@ try {
 
   detectionSettings.hidden = false;
 
+  methods.forEach((method) => {
+    method[1].addEventListener("change", () => {
+      method[2].hidden = !method[1].checked;
+    });
+  });
+
+  saveButton.addEventListener("click", async () => {
+    saveSettings();
+  });
+
   showStrategies();
   showMethods();
-
-  capabilities.detection_methods.forEach((method) => {});
 } catch (error) {
   noConnection.hidden = false;
   console.error(error);
 }
-
-saveButton.addEventListener("click", async () => {
-  saveSettings();
-});
 
 // Function that loads the decision strategies based on the capabilities
 function showStrategies() {
@@ -90,6 +111,7 @@ async function getSettings() {
 
   settings.detection_methods.forEach((method) => {
     methods.get(method)[1].checked = true;
+    methods.get(method)[2].hidden = false;
   });
 
   cacheCheckbox.checked = settings.cache;
