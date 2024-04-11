@@ -43,7 +43,7 @@ try {
 
   setupStrategies();
   setupMethods();
-  // getSettings();
+  getSettings();
 
   capabilities.detection_methods.forEach((method) => {});
 } catch (error) {
@@ -55,31 +55,28 @@ saveButton.addEventListener("click", async () => {
   saveSettings();
 });
 
+// Function that loads the decision strategies based on the capabilities
 function setupStrategies() {
   let index = 0;
 
   capabilities.decision_strategies.forEach((strategy) => {
-    if (index == 0) {
-      strategies.get(strategy).checked = true;
-    }
     strategies.get(strategy).disabled = false;
     index++;
   });
 }
-
+  
+// Function that loads the detection methods based on the capabilities
 function setupMethods() {
   let index = 0;
 
   capabilities.detection_methods.forEach((method) => {
-    if (index == 0) {
-      methods.get(method)[1].checked = true;
-    }
     methods.get(method)[0].hidden = false;
     methods.get(method)[1].disabled = false;
     index++;
   });
 }
 
+// Function that gets the settings from the server
 async function getSettings() {
   let settings = await fetchApi("/settings");
 
@@ -90,4 +87,17 @@ async function getSettings() {
   return settings;
 }
 
-async function saveSettings() {}
+// Function that saves the settings to the server
+async function saveSettings() {
+  // await fetchApi("/settings", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     decision_strategy: ,
+  //     detection_method: ,
+  //     cache: cacheCheckbox.checked,
+  //   }),
+  // });
+}
