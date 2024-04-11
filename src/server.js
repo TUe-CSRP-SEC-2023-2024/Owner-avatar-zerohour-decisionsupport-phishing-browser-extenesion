@@ -122,7 +122,7 @@ async function getSettings() {
 
   randomDetectionMethodSeed.value = settings.random.seed;
 
-  cacheCheckbox.checked = settings.cache;
+  cacheCheckbox.checked = settings.bypass_cache;
 
   return settings;
 }
