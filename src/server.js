@@ -12,18 +12,24 @@ let decisionStrategyUnanimous = document.getElementById(
 let decisionStrategyStrict = document.getElementById(
   "decision-strategy-strict"
 );
-let saveButton = document.getElementById("save-button");
 
 let dstDetectionMethod = document.getElementById("detection-method-dst");
 let dstDetectionMethodCheckbox = document.getElementById(
   "detection-method-dst-checkbox"
 );
+let dstDetectionMethodHomebrew = document.getElementById(
+  "detection-method-dst-homebrew"
+);
+let dstDetectionMethodGCV = document.getElementById("detection-method-dst-gcv");
+
 let randomDetectionMethod = document.getElementById("detection-method-random");
 let randomDetectionMethodCheckbox = document.getElementById(
   "detection-method-random-checkbox"
 );
 
 let cacheCheckbox = document.getElementById("checkbox-cache");
+
+let saveButton = document.getElementById("save-button");
 
 let strategies = new Map();
 strategies.set("majority", decisionStrategyMajority);
@@ -38,12 +44,12 @@ let capabilities;
 
 try {
   capabilities = await fetchApi("/capabilities");
-  detectionSettings.hidden = false;
-  console.log(capabilities);
+  await getSettings();
 
-  setupStrategies();
-  setupMethods();
-  getSettings();
+  detectionSettings.hidden = false;
+
+  showStrategies();
+  showMethods();
 
   capabilities.detection_methods.forEach((method) => {});
 } catch (error) {
@@ -56,7 +62,7 @@ saveButton.addEventListener("click", async () => {
 });
 
 // Function that loads the decision strategies based on the capabilities
-function setupStrategies() {
+function showStrategies() {
   let index = 0;
 
   capabilities.decision_strategies.forEach((strategy) => {
@@ -64,9 +70,9 @@ function setupStrategies() {
     index++;
   });
 }
-  
+
 // Function that loads the detection methods based on the capabilities
-function setupMethods() {
+function showMethods() {
   let index = 0;
 
   capabilities.detection_methods.forEach((method) => {
@@ -80,9 +86,13 @@ function setupMethods() {
 async function getSettings() {
   let settings = await fetchApi("/settings");
 
-  console.log(settings);
+  strategies.get(settings.decision_strategy).checked = true;
 
-  strategies(settings.decision_strategy).checked = true;
+  settings.detection_methods.forEach((method) => {
+    methods.get(method)[1].checked = true;
+  });
+
+  cacheCheckbox.checked = settings.cache;
 
   return settings;
 }
