@@ -38,11 +38,9 @@ async function fetchApi(endpoint, method = "GET", jsonObj = undefined) {
  * @returns
  */
 async function getCheckState(url) {
-  const json = await fetchApi("/state", "POST", {
+  return await fetchApi("/state", "POST", {
     url: url,
   });
-
-  return json[0];
 }
 
 /**
