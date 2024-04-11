@@ -10,87 +10,91 @@
   <h1>Notification Settings</h1>
 
   <div id="methods">
-    <h2>Processing</h2>
-    <div class="method">
-      <h3>
-        Password Input Block
-      </h3>
-      <p>
-        Prevents you from entering your Password
-        while the extension is analyzing the webpage.
-      </p>
-  
-      <label class="checkboxes">
-        <input type="checkbox" class="settings-checkbox settings-input" id="password-input-block-enabled">
-        <span>Enabled</span>
-      </label>
-    </div>
-
-    <div class="method">
-      <h3>
-        Password Input Warning
-      </h3>
-      <p>
-        Gives you a warning when you enter
-        your password to a webpage that is still being processed by the extension.
-      </p>
-  
-      <label class="checkboxes">
-        <input type="checkbox" class="settings-checkbox settings-input" id="password-input-warning-enabled">
-        <span>Enabled</span>
-      </label>
-
-      <details>
-        <summary>Settings</summary>
+    <div id="processing-methods">
+      <h2>Processing</h2>
+      <div class="method">
+        <h3>
+          Password Input Block
+        </h3>
+        <p>
+          Prevents you from entering your Password
+          while the extension is analyzing the webpage.
+        </p>
+    
         <label class="checkboxes">
-          <input type="checkbox" class="settings-checkbox settings-input" id="password-input-warning-focus-only">
-          <span>Only display warning on focus</span>
+          <input type="checkbox" class="settings-checkbox settings-input" id="password-input-block-enabled">
+          <span>Enabled</span>
         </label>
-      </details>
-    </div>
+      </div>
 
-    <div class="method">
-      <h3>
-        Popup
-      </h3>
-      <p>
-        Displays a full-page popup while the extension is processing.
-      </p>
-  
-      <label class="checkboxes">
-        <input type="checkbox" class="settings-checkbox settings-input" id="processing-screen-enabled">
-        <span>Enabled</span>
-      </label>
+      <div class="method">
+        <h3>
+          Password Input Warning
+        </h3>
+        <p>
+          Gives you a warning when you enter
+          your password to a webpage that is still being processed by the extension.
+        </p>
+
+        <label class="checkboxes">
+          <input type="checkbox" class="settings-checkbox settings-input" id="password-input-warning-enabled">
+          <span>Enabled</span>
+        </label>
+
+        <details>
+          <summary>Settings</summary>
+          <label class="checkboxes">
+            <input type="checkbox" class="settings-checkbox settings-input" id="password-input-warning-focus-only">
+            <span>Only display warning on focus</span>
+          </label>
+        </details>
+      </div>
+
+      <div class="method">
+        <h3>
+          Popup
+        </h3>
+        <p>
+          Displays a full-page popup while the extension is processing.
+        </p>
+    
+        <label class="checkboxes">
+          <input type="checkbox" class="settings-checkbox settings-input" id="processing-screen-enabled">
+          <span>Enabled</span>
+        </label>
+      </div>
     </div>
 
     <hr />
-    <h2>Phishing</h2>
-    <div class="method">
-      <h3>
-        Alert
-      </h3>
-      <p>
-        Displays an alert when you visit a phishing webpage.
-      </p>
-  
-      <label class="checkboxes">
-        <input type="checkbox" class="settings-checkbox settings-input" id="phishing-alert-enabled">
-        <span>Enabled</span>
-      </label>
-    </div>
+    <div id="phishing-methods">
+      <h2>Phishing</h2>
+      <div class="method">
+        <h3>
+          Alert
+        </h3>
+        <p>
+          Displays an alert when you visit a phishing webpage.
+        </p>
+    
+        <label class="checkboxes">
+          <input type="checkbox" class="settings-checkbox settings-input" id="phishing-alert-enabled">
+          <span>Enabled</span>
+        </label>
+      </div>
 
-    <div class="method">
-      <h3>
-        Popup
-      </h3>
-      <p>
-        Displays a full-page popup when you visit a phishing page.
-      </p>
-  
-      <label class="checkboxes">
-        <input type="checkbox" class="settings-checkbox settings-input" id="phishing-screen-enabled">
-        <span>Enabled</span>
-      </label>
+      <div class="method">
+        <h3>
+          Popup
+        </h3>
+        <p>
+          Displays a full-page popup when you visit a phishing page.
+        </p>
+    
+        <label class="checkboxes">
+          <input type="checkbox" class="settings-checkbox settings-input" id="phishing-screen-enabled">
+          <span>Enabled</span>
+        </label>
+      </div>
     </div>
   </div>
 </body>
