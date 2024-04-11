@@ -40,7 +40,7 @@ async function loadLocalSettings() {
     return;
   }
 
-  httpsCheckbox.checked = url.protocol === 'https';
+  httpsCheckbox.checked = url.protocol === 'https:';
   serverIPField.value = url.hostname;
   serverPortField.value = url.port;
 
