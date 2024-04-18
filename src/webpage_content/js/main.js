@@ -66,9 +66,12 @@ async function load() {
   const all_notification_methods = {
     "password-input-block": args => new PasswordInputBlock(args),
     "password-input-warning": args => new PasswordInputWarning(args),
-    "phishing-alert": args => new PhishingAlert(args),
     "phishing-screen": args => new PhishingScreen(args),
-    "processing-screen": args => new ProcessingScreen(args)
+    "processing-screen": args => new ProcessingScreen(args),
+    "phishing-alert": args => new Alert(PHISHING, args),
+    "processing-alert": args => new Alert(PROCESSING, args),
+    "legitimate-alert": args => new Alert(LEGITIMATE, args),
+    "inconclusive-alert": args => new Alert(INCONCLUSIVE, args)
   };
 
   const settings = await chrome.runtime.sendMessage({

@@ -1,6 +1,6 @@
 import { storeNotificationSettings, getNotificationSettings } from './storage.js';
 
-const methods = ["password-input-block", "password-input-warning", "phishing-alert", "phishing-screen", "processing-screen"];
+const methods = ["password-input-block", "password-input-warning", "phishing-screen", "processing-screen", "phishing-alert", "processing-alert", "legitimate-alert", "inconclusive-alert", ];
 
 Array.prototype.forEach.call(document.getElementsByClassName("settings-checkbox"), elem =>
   elem.addEventListener("change", updateSettings)
