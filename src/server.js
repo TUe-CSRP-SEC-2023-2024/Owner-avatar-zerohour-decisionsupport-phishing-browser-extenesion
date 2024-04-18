@@ -173,7 +173,7 @@ async function saveSettings() {
     }
   });
 
-  console.log({
+  await fetchApi("/settings", "POST", {
     bypass_cache: cacheCheckbox.checked,
     decision_strategy: decision_strategy,
     detection_methods: detection_methods,
@@ -184,18 +184,6 @@ async function saveSettings() {
       emd_2: dstDetectionMethodEMD2.value,
       s_sim_1: dstDetectionMethodSSIM1.value,
       s_sim_2: dstDetectionMethodSSIM2.value,
-    },
-    random: {
-      seed: randomDetectionMethodSeed.value,
-    },
-  });
-
-  await fetchApi("/settings", "POST", {
-    bypass_cache: cacheCheckbox.checked,
-    decision_strategy: decision_strategy,
-    detection_methods: detection_methods,
-    dst: {
-      logo_finder: logo_finder,
     },
     random: {
       seed: randomDetectionMethodSeed.value,
