@@ -24,6 +24,21 @@ let dstDetectionMethodHomebrew = document.getElementById(
   "detection-method-dst-homebrew"
 );
 let dstDetectionMethodGCV = document.getElementById("detection-method-dst-gcv");
+let dstDetectionMethodTextSearchResults = document.getElementById(
+  "detection-method-dst-text-search-results"
+);
+let dstDetectionMethodEMD1 = document.getElementById(
+  "detection-method-dst-emd1"
+);
+let dstDetectionMethodEMD2 = document.getElementById(
+  "detection-method-dst-emd2"
+);
+let dstDetectionMethodSSIM1 = document.getElementById(
+  "detection-method-dst-ssim1"
+);
+let dstDetectionMethodSSIM2 = document.getElementById(
+  "detection-method-dst-ssim2"
+);
 
 let randomDetectionMethod = document.getElementById("detection-method-random");
 let randomDetectionMethodCheckbox = document.getElementById(
@@ -118,7 +133,14 @@ async function getSettings() {
     methods.get(method)[2].hidden = false;
   });
 
-  logoFinders.get(settings.dst.logo_finder).checked = true;
+  if (settings.dst != null) {
+    logoFinders.get(settings.dst.logo_finder).checked = true;
+    dstDetectionMethodTextSearchResults.value = settings.dst.text_search_results;
+    dstDetectionMethodEMD1.value = settings.dst.emd_1;
+    dstDetectionMethodEMD2.value = settings.dst.emd_2;
+    dstDetectionMethodSSIM1.value = settings.dst.s_sim_1;
+    dstDetectionMethodSSIM2.value = settings.dst.s_sim_2;
+  }
 
   randomDetectionMethodSeed.value = settings.random.seed;
 
