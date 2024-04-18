@@ -179,6 +179,11 @@ async function saveSettings() {
     detection_methods: detection_methods,
     dst: {
       logo_finder: logo_finder,
+      text_search_results: dstDetectionMethodTextSearchResults.value,
+      emd_1: dstDetectionMethodEMD1.value,
+      emd_2: dstDetectionMethodEMD2.value,
+      s_sim_1: dstDetectionMethodSSIM1.value,
+      s_sim_2: dstDetectionMethodSSIM2.value,
     },
     random: {
       seed: randomDetectionMethodSeed.value,
