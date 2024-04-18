@@ -39,6 +39,9 @@ let dstDetectionMethodSSIM1 = document.getElementById(
 let dstDetectionMethodSSIM2 = document.getElementById(
   "detection-method-dst-ssim2"
 );
+let dstDetectionMethodHomebrewRegions = document.getElementById("detection-method-dst-homebrew-regions");
+let dstDetectionMethodHomebrewSearchResults = document.getElementById("detection-method-dst-homebrew-search-results");
+let dstDetectionMethodGCVSearchResults = document.getElementById("detection-method-dst-gcv-search-results");
 
 let randomDetectionMethod = document.getElementById("detection-method-random");
 let randomDetectionMethodCheckbox = document.getElementById(
@@ -140,6 +143,9 @@ async function getSettings() {
     dstDetectionMethodEMD2.value = settings.dst.emd_2;
     dstDetectionMethodSSIM1.value = settings.dst.s_sim_1;
     dstDetectionMethodSSIM2.value = settings.dst.s_sim_2;
+    dstDetectionMethodHomebrewRegions.value = settings.dst.homebrew_regions;
+    dstDetectionMethodHomebrewSearchResults.value = settings.dst.homebrew_search_results;
+    dstDetectionMethodGCVSearchResults.value = settings.dst.gcv_search_results;
   }
 
   randomDetectionMethodSeed.value = settings.random.seed;
@@ -184,6 +190,9 @@ async function saveSettings() {
       emd_2: dstDetectionMethodEMD2.value,
       s_sim_1: dstDetectionMethodSSIM1.value,
       s_sim_2: dstDetectionMethodSSIM2.value,
+      homebrew_regions: dstDetectionMethodHomebrewRegions.value,
+      homebrew_search_results: dstDetectionMethodHomebrewSearchResults.value,
+      gcv_search_results: dstDetectionMethodGCVSearchResults.value,
     },
     random: {
       seed: randomDetectionMethodSeed.value,
